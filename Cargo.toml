@@ -4,7 +4,7 @@ exclude = ["examples", "benches"]
 resolver = "2"
 
 [workspace.package]
-version = "0.2.2"
+version = "0.3.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["Aursen"]
@@ -50,19 +50,19 @@ syn = "2.0"
 temp-dir = "0.2.0"
 toml_edit = "0.25.8"
 trybuild = "1.0"
-typhoon-account-macro = { version = "0.2.2", path = "crates/account-macro" }
-typhoon-accounts = { version = "0.2.2", path = "crates/accounts" }
-typhoon-context = { version = "0.2.2", path = "crates/context" }
-typhoon-context-macro = { version = "0.2.2", path = "crates/context-macro" }
-typhoon-cpi-generator = { version = "0.2.2", path = "crates/cpi-generator" }
-typhoon-traits = { version = "0.2.2", path = "crates/traits" }
-typhoon-cpi-generator-macro = { version = "0.2.2", path = "crates/cpi-generator-macro" }
-typhoon-discriminator = { version = "0.2.2", path = "crates/discriminator" }
-typhoon-errors = { version = "0.2.2", path = "crates/errors" }
-typhoon-errors-macro = { version = "0.2.2", path = "crates/errors-macro" }
-typhoon-program-id-macro = { version = "0.2.2", path = "crates/program-id-macro" }
-typhoon-syn = { version = "0.2.2", path = "crates/syn" }
-typhoon-token = { version = "0.2.2", path = "crates/token" }
-typhoon-utility = { version = "0.2.2", path = "crates/utility" }
-typhoon-utility-traits = { version = "0.2.2", path = "crates/utility-traits" }
+typhoon-account-macro = { version = "0.3.0", path = "crates/account-macro" }
+typhoon-accounts = { version = "0.3.0", path = "crates/accounts" }
+typhoon-context = { version = "0.3.0", path = "crates/context" }
+typhoon-context-macro = { version = "0.3.0", path = "crates/context-macro" }
+typhoon-cpi-generator = { version = "0.3.0", path = "crates/cpi-generator" }
+typhoon-traits = { version = "0.3.0", path = "crates/traits" }
+typhoon-cpi-generator-macro = { version = "0.3.0", path = "crates/cpi-generator-macro" }
+typhoon-discriminator = { version = "0.3.0", path = "crates/discriminator" }
+typhoon-errors = { version = "0.3.0", path = "crates/errors" }
+typhoon-errors-macro = { version = "0.3.0", path = "crates/errors-macro" }
+typhoon-program-id-macro = { version = "0.3.0", path = "crates/program-id-macro" }
+typhoon-syn = { version = "0.3.0", path = "crates/syn" }
+typhoon-token = { version = "0.3.0", path = "crates/token" }
+typhoon-utility = { version = "0.3.0", path = "crates/utility" }
+typhoon-utility-traits = { version = "0.3.0", path = "crates/utility-traits" }
 wincode = { version = "0.5.0", default-features = false }
