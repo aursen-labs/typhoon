@@ -14,6 +14,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [0.3.0] - 2026-04-07
+
+### Added
+
+- Added `find_program_address_const` utility ([#364](https://github.com/exotic-markets-labs/typhoon/pull/364)).
+- Added `token2022` feature to `typhoon-token` ([#356](https://github.com/exotic-markets-labs/typhoon/pull/356)).
+
+### Changed
+
+- Removed `borsh` dependency ([#365](https://github.com/exotic-markets-labs/typhoon/pull/365)).
+- Reworked arguments handling ([#363](https://github.com/exotic-markets-labs/typhoon/pull/363)).
+- Reworked account traits ([#349](https://github.com/exotic-markets-labs/typhoon/pull/349)).
+- Replaced `Interface` with `Program` ([#355](https://github.com/exotic-markets-labs/typhoon/pull/355)).
+- Replaced `InterfaceAccount` with `Account` ([#352](https://github.com/exotic-markets-labs/typhoon/pull/352)).
+- Simplified lamports addition using `wrapping_add` ([#366](https://github.com/exotic-markets-labs/typhoon/pull/366)).
+- Simplified `SplAccessor` implementation ([#361](https://github.com/exotic-markets-labs/typhoon/pull/361)).
+- Updated dependencies (core and benchmarks) ([#367](https://github.com/exotic-markets-labs/typhoon/pull/367), [#360](https://github.com/exotic-markets-labs/typhoon/pull/360)).
+- Updated `bytemuck` feature dependencies ([#362](https://github.com/exotic-markets-labs/typhoon/pull/362)).
+
+### Fixed
+
+- Improved address comparison logic for system `program_id` ([#359](https://github.com/exotic-markets-labs/typhoon/pull/359)).
+- Improved error handling in context and IDL parsing ([#358](https://github.com/exotic-markets-labs/typhoon/pull/358)).
+- Renamed `SignerNoCheck` to `UncheckedSigner` ([#357](https://github.com/exotic-markets-labs/typhoon/pull/357)).
+- Removed unused fields in CLI templates ([#354](https://github.com/exotic-markets-labs/typhoon/pull/354)).
+
 ## [0.2.2] - 2026-02-27
 
 ### Changed
@@ -76,7 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/exotic-markets-labs/typhoon/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/exotic-markets-labs/typhoon/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/exotic-markets-labs/typhoon/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/exotic-markets-labs/typhoon/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/exotic-markets-labs/typhoon/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/exotic-markets-labs/typhoon/compare/v0.1.0...v0.2.0
