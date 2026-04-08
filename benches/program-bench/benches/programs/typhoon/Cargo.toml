@@ -16,6 +16,6 @@ unexpected_cfgs = { level = "warn", check-cfg = [
 ] }
 
 [dependencies]
-bytemuck = { version = "1.24", features = ["derive"] }
+bytemuck = { version = "1.25.0", features = ["derive"] }
 solana-program-log = "1.1.0"
 typhoon = { path = "../../../../../crates/lib" }
