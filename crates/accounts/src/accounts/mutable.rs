@@ -1,7 +1,6 @@
 use {
     crate::{
-        AccountData, FromAccountInfo, FromRaw, ReadableAccount, Signer, SignerAccount, SignerCheck,
-        WritableAccount,
+        AccountData, FromRaw, ReadableAccount, Signer, SignerAccount, SignerCheck, WritableAccount,
     },
     solana_account_view::AccountView,
     typhoon_errors::Error,
@@ -9,13 +8,15 @@ use {
 
 pub struct Mut<T: ReadableAccount>(pub(crate) T);
 
-impl<'a, T> FromAccountInfo<'a> for Mut<T>
+impl<'a, T> TryFrom<&'a AccountView> for Mut<T>
 where
-    T: FromAccountInfo<'a> + ReadableAccount,
+    T: TryFrom<&'a AccountView, Error = Error> + ReadableAccount,
 {
+    type Error = Error;
+
     #[inline(always)]
-    fn try_from_info(info: &'a AccountView) -> Result<Self, Error> {
-        Ok(Mut(T::try_from_info(info)?))
+    fn try_from(info: &'a AccountView) -> Result<Self, Self::Error> {
+        Ok(Mut(T::try_from(info)?))
     }
 }
 

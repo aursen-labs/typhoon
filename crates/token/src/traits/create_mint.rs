@@ -3,8 +3,8 @@ use {
     pinocchio::{cpi::Signer as CpiSigner, sysvars::rent::Rent, AccountView, Address},
     pinocchio_token::{instructions::InitializeMint2, ID as TOKEN_PROGRAM_ID},
     typhoon_accounts::{
-        Account, FromAccountInfo, Mut, ReadableAccount, Signer, SignerCheck, SystemAccount,
-        UncheckedAccount, WritableAccount,
+        Account, Mut, ReadableAccount, Signer, SignerCheck, SystemAccount, UncheckedAccount,
+        WritableAccount,
     },
     typhoon_errors::Error,
     typhoon_utility::create_account_with_minimum_balance_signed,
@@ -13,7 +13,7 @@ use {
 pub trait SplCreateMint<'a, T: ReadableAccount>
 where
     Self: Sized + Into<&'a AccountView>,
-    T: ReadableAccount + FromAccountInfo<'a>,
+    T: ReadableAccount + TryFrom<&'a AccountView, Error = Error>,
 {
     #[inline]
     fn create_mint(
@@ -43,7 +43,7 @@ where
         }
         .invoke()?;
 
-        Mut::try_from_info(info)
+        Mut::try_from(info)
     }
 }
 

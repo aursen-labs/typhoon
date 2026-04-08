@@ -1,7 +1,5 @@
 use {
-    crate::{
-        discriminator_matches, AccountData, FromAccountInfo, FromRaw, ReadableAccount, System,
-    },
+    crate::{discriminator_matches, AccountData, FromRaw, ReadableAccount, System},
     core::marker::PhantomData,
     pinocchio::hint::unlikely,
     solana_account_view::AccountView,
@@ -14,27 +12,29 @@ pub struct Account<'a, T>
 where
     T: Discriminator,
 {
-    pub(crate) info: &'a AccountView,
+    pub(crate) account: &'a AccountView,
     pub(crate) _phantom: PhantomData<T>,
 }
 
-impl<'a, T> FromAccountInfo<'a> for Account<'a, T>
+impl<'a, T> TryFrom<&'a AccountView> for Account<'a, T>
 where
     T: CheckOwner + Discriminator,
 {
+    type Error = Error;
+
     #[inline(always)]
-    fn try_from_info(info: &'a AccountView) -> Result<Self, Error> {
+    fn try_from(account: &'a AccountView) -> Result<Self, Self::Error> {
         // Check data length first - this is the cheapest check and most likely to fail
-        if unlikely(info.data_len() < T::DISCRIMINATOR.len()) {
+        if unlikely(account.data_len() < T::DISCRIMINATOR.len()) {
             return Err(ProgramError::AccountDataTooSmall.into());
         }
 
         // Validate discriminator using optimized comparison for small discriminators
-        if unlikely(!discriminator_matches::<T>(info)) {
+        if unlikely(!discriminator_matches::<T>(account)) {
             return Err(ErrorCode::AccountDiscriminatorMismatch.into());
         }
 
-        let owner = unsafe { info.owner() };
+        let owner = unsafe { account.owner() };
 
         // Verify account ownership - checked after discriminator for better branch prediction
         if unlikely(!T::owned_by(owner)) {
@@ -44,13 +44,13 @@ where
         // Handle special case: zero-lamport system accounts (least common case)
         if unlikely(System::address_eq(owner)) {
             // Only perform additional lamports check for system accounts
-            if info.lamports() == 0 {
+            if account.lamports() == 0 {
                 return Err(ProgramError::UninitializedAccount.into());
             }
         }
 
         Ok(Account {
-            info,
+            account,
             _phantom: PhantomData,
         })
     }
@@ -62,7 +62,7 @@ where
 {
     #[inline(always)]
     fn from(value: Account<'a, T>) -> Self {
-        value.info
+        value.account
     }
 }
 
@@ -72,7 +72,7 @@ where
 {
     #[inline(always)]
     fn as_ref(&self) -> &AccountView {
-        self.info
+        self.account
     }
 }
 
@@ -89,9 +89,9 @@ impl<'a, T> FromRaw<'a> for Account<'a, T>
 where
     T: Discriminator,
 {
-    fn from_raw(info: &'a AccountView) -> Self {
+    fn from_raw(account: &'a AccountView) -> Self {
         Self {
-            info,
+            account,
             _phantom: PhantomData,
         }
     }

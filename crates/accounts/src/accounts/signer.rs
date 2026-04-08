@@ -1,7 +1,5 @@
 use {
-    crate::{
-        AccountData, FromAccountInfo, FromRaw, ReadableAccount, SignerAccount, UncheckedAccount,
-    },
+    crate::{AccountData, FromRaw, ReadableAccount, SignerAccount, UncheckedAccount},
     core::{marker::PhantomData, ops::Deref},
     solana_account_view::AccountView,
     typhoon_errors::{Error, ErrorCode},
@@ -40,17 +38,19 @@ where
     _phantom: PhantomData<&'a C>,
 }
 
-impl<'a, T, C> FromAccountInfo<'a> for Signer<'a, T, C>
+impl<'a, T, C> TryFrom<&'a AccountView> for Signer<'a, T, C>
 where
     C: SignerCheck,
-    T: ReadableAccount + FromAccountInfo<'a>,
+    T: ReadableAccount + TryFrom<&'a AccountView, Error = Error>,
 {
+    type Error = Error;
+
     #[inline(always)]
-    fn try_from_info(info: &'a AccountView) -> Result<Self, Error> {
+    fn try_from(info: &'a AccountView) -> Result<Self, Self::Error> {
         C::check(info)?;
 
         Ok(Signer {
-            acc: T::try_from_info(info)?,
+            acc: T::try_from(info)?,
             _phantom: PhantomData,
         })
     }

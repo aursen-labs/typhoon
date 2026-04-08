@@ -4,8 +4,8 @@ use {
     pinocchio_associated_token_account::instructions::{Create, CreateIdempotent},
     pinocchio_token::{instructions::InitializeAccount3, ID as TOKEN_PROGRAM_ID},
     typhoon_accounts::{
-        Account, FromAccountInfo, FromRaw, Mut, ReadableAccount, Signer, SignerCheck,
-        SystemAccount, UncheckedAccount, WritableAccount,
+        Account, FromRaw, Mut, ReadableAccount, Signer, SignerCheck, SystemAccount,
+        UncheckedAccount, WritableAccount,
     },
     typhoon_errors::Error,
     typhoon_utility::create_account_with_minimum_balance_signed,
@@ -14,7 +14,7 @@ use {
 pub trait SplCreateToken<'a, T>
 where
     Self: Sized + Into<&'a AccountView>,
-    T: ReadableAccount + FromAccountInfo<'a> + FromRaw<'a>,
+    T: ReadableAccount + TryFrom<&'a AccountView> + FromRaw<'a>,
 {
     fn create_token_account(
         self,
