@@ -1,16 +1,14 @@
-use {
-    crate::{FromAccountInfo, ReadableAccount},
-    solana_account_view::AccountView,
-    typhoon_errors::Error,
-};
+use {crate::ReadableAccount, solana_account_view::AccountView, typhoon_errors::Error};
 
 pub struct UncheckedAccount<'a> {
     info: &'a AccountView,
 }
 
-impl<'a> FromAccountInfo<'a> for UncheckedAccount<'a> {
+impl<'a> TryFrom<&'a AccountView> for UncheckedAccount<'a> {
+    type Error = Error;
+
     #[inline(always)]
-    fn try_from_info(info: &'a AccountView) -> Result<Self, Error> {
+    fn try_from(info: &'a AccountView) -> Result<Self, Self::Error> {
         Ok(UncheckedAccount { info })
     }
 }

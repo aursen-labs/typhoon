@@ -479,7 +479,8 @@ impl AccountGenerator<'_> {
         let account_ty = self.account.get_ty();
         let idents = AccountIdents::new(name);
 
-        let mut token = quote!(let #name = <#account_ty as FromAccountInfo>::try_from_info(#name).trace_account(#name_str)?;);
+        let mut token =
+            quote!(let #name = <#account_ty>::try_from(#name).trace_account(#name_str)?;);
 
         if self.init_state {
             let state = &idents.state;

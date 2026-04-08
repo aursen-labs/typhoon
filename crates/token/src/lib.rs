@@ -68,7 +68,7 @@ impl<'a> Accessor<'a, Mint> for SplStrategy {
             return Err(ProgramError::InvalidInstructionData);
         };
         *data = rem;
-        Ok(<Self as Accessor<Mint>>::access(to_read)?)
+        <Self as Accessor<Mint>>::access(to_read)
     }
 }
 
@@ -93,7 +93,7 @@ impl<'a> Accessor<'a, TokenAccount> for SplStrategy {
             return Err(ProgramError::InvalidInstructionData);
         };
         *data = rem;
-        Ok(<Self as Accessor<TokenAccount>>::access(to_read)?)
+        <Self as Accessor<TokenAccount>>::access(to_read)
     }
 }
 

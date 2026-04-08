@@ -1,5 +1,5 @@
 use {
-    crate::{FromAccountInfo, ReadableAccount, System},
+    crate::{ReadableAccount, System},
     pinocchio::hint::unlikely,
     solana_account_view::AccountView,
     solana_program_error::ProgramError,
@@ -11,9 +11,11 @@ pub struct SystemAccount<'a> {
     info: &'a AccountView,
 }
 
-impl<'a> FromAccountInfo<'a> for SystemAccount<'a> {
+impl<'a> TryFrom<&'a AccountView> for SystemAccount<'a> {
+    type Error = Error;
+
     #[inline(always)]
-    fn try_from_info(info: &'a AccountView) -> Result<Self, Error> {
+    fn try_from(info: &'a AccountView) -> Result<Self, Self::Error> {
         if unlikely(!System::address_eq(unsafe { info.owner() })) {
             return Err(ProgramError::InvalidAccountOwner.into());
         }

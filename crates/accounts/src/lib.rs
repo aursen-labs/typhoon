@@ -13,10 +13,6 @@ mod accounts;
 mod discriminator;
 mod programs;
 
-pub trait FromAccountInfo<'a>: Sized {
-    fn try_from_info(info: &'a AccountView) -> Result<Self, Error>;
-}
-
 pub trait ReadableAccount: AsRef<AccountView> {
     #[inline(always)]
     fn address(&self) -> &Address {
