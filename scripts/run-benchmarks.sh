@@ -26,6 +26,11 @@ cd star-frame
 cargo build-sbf
 cd ..
 
+echo "Building quasar..."
+cd quasar
+cargo build-sbf
+cd ..
+
 echo "🚀 Running benchmarks..."
 cd ../..
 cargo bench --bench bench

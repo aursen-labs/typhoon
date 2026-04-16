@@ -148,7 +148,8 @@ pub fn main() {
     let anchor = runner("anchor");
     let typhoon = runner("typhoon_bench");
     let star_frame = runner("star_frame");
-    let result = generate_markdown([pinocchio, anchor, typhoon, star_frame]);
+    let quasar = runner("quasar");
+    let result = generate_markdown([pinocchio, anchor, typhoon, star_frame, quasar]);
 
     let so_path = PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/../BENCHMARK.md"));
 
@@ -156,7 +157,9 @@ pub fn main() {
     std::fs::write(so_path, result).expect("Failed to write benchmark results");
 }
 
-pub fn generate_markdown([pinocchio, anchor, typhoon, star_frame]: [BenchResult; 4]) -> String {
+pub fn generate_markdown(
+    [pinocchio, anchor, typhoon, star_frame, quasar]: [BenchResult; 5],
+) -> String {
     let mut output = String::new();
 
     let format_cell = |val: u64, min: u64| -> String {
@@ -178,10 +181,10 @@ pub fn generate_markdown([pinocchio, anchor, typhoon, star_frame]: [BenchResult;
     output.push_str("- 🟥 **Red**: Poor performance (more than 2x the minimum value)\n\n");
     output.push_str("### CU Consumed\n\n");
     output.push_str(
-        "| Benchmark     | `vanilla`     | `anchor`          | `typhoon`    | `star-frame`   |\n",
+        "| Benchmark     | `vanilla`     | `anchor`          | `typhoon`    | `star-frame`   | `quasar`       |\n",
     );
     output.push_str(
-        "| ------------- | --------------- | ----------------- | ------------ | -------------- |\n",
+        "| ------------- | --------------- | ----------------- | ------------ | -------------- | -------------- |\n",
     );
 
     for key in IX_NAMES {
@@ -189,34 +192,39 @@ pub fn generate_markdown([pinocchio, anchor, typhoon, star_frame]: [BenchResult;
         let a_val = anchor.metrics.get(*key).unwrap_or(&0);
         let t_val = typhoon.metrics.get(*key).unwrap_or(&0);
         let s_val = star_frame.metrics.get(*key).unwrap_or(&0);
+        let q_val = quasar.metrics.get(*key).unwrap_or(&0);
 
-        let min_val = *p_val.min(a_val.min(t_val.min(s_val)));
+        let min_val = *p_val.min(a_val).min(t_val).min(s_val).min(q_val);
+
         output.push_str(&format!(
-            "| {} | {} | {} | {} | {} |\n",
+            "| {} | {} | {} | {} | {} | {} |\n",
             key,
             format_cell(*p_val, min_val),
             format_cell(*a_val, min_val),
             format_cell(*t_val, min_val),
-            format_cell(*s_val, min_val)
+            format_cell(*s_val, min_val),
+            format_cell(*q_val, min_val)
         ));
     }
 
     output.push_str("\n### Binary Size\n\n");
-    output.push_str("|                     | `vanilla`     | `anchor`            | `typhoon`| `star-frame`   |\n");
-    output.push_str("| ------------------- | --------------- | ------------------- | -------- | -------------- |\n");
+    output.push_str("|                     | `vanilla`     | `anchor`            | `typhoon`| `star-frame`   | `quasar`       |\n");
+    output.push_str("| ------------------- | --------------- | ------------------- | -------- | -------------- | -------------- |\n");
 
     let p_size = pinocchio.binary_size as u64;
     let a_size = anchor.binary_size as u64;
     let t_size = typhoon.binary_size as u64;
     let s_size = star_frame.binary_size as u64;
-    let min_size = p_size.min(a_size.min(t_size.min(s_size)));
+    let q_size = quasar.binary_size as u64;
+    let min_size = p_size.min(a_size.min(t_size.min(s_size.min(q_size))));
 
     output.push_str(&format!(
-        "| Binary size (bytes) | {} | {} | {} | {} |\n",
+        "| Binary size (bytes) | {} | {} | {} | {} | {} |\n",
         format_cell(p_size, min_size),
         format_cell(a_size, min_size),
         format_cell(t_size, min_size),
-        format_cell(s_size, min_size)
+        format_cell(s_size, min_size),
+        format_cell(q_size, min_size)
     ));
 
     output

@@ -1,0 +1,21 @@
+[package]
+name = "quasar"
+version = "0.1.0"
+edition.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+alloc = []
+client = []
+debug = []
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(target_os, values("solana"))',
+] }
+
+[dependencies]
+quasar-lang = { git = "https://github.com/blueshift-gg/quasar.git" }
