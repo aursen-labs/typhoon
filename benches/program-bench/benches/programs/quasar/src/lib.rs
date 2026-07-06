@@ -52,7 +52,7 @@ pub struct CreateAccount {
         payer = admin
     )]
     pub account: Account<Data>,
-    pub system_program: Program<System>,
+    pub system_program: Program<SystemProgram>,
 }
 
 #[derive(Accounts)]
@@ -61,7 +61,7 @@ pub struct Transfer {
     pub payer: Signer,
     #[account(mut)]
     pub account: SystemAccount,
-    pub system_program: Program<System>,
+    pub system_program: Program<SystemProgram>,
 }
 
 #[derive(Accounts)]
