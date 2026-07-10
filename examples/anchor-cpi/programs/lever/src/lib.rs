@@ -10,11 +10,15 @@ pub mod lever {
         Ok(())
     }
 
-    pub fn switch_power(ctx: Context<SetPowerStatus>, name: String) -> Result<()> {
+    pub fn switch_power(
+        ctx: Context<SetPowerStatus>,
+        name: String,
+        details: Details,
+    ) -> Result<()> {
         let power = &mut ctx.accounts.power;
         power.is_on = !power.is_on;
 
-        msg!("{} is pulling the power switch!", &name);
+        msg!("{} is pulling the power switch! {}", &name, details.info);
 
         match power.is_on {
             true => msg!("The power is now on."),
@@ -43,4 +47,10 @@ pub struct SetPowerStatus<'info> {
 #[account]
 pub struct PowerStatus {
     pub is_on: bool,
+    pub name: String,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct Details {
+    pub info: String,
 }

@@ -78,7 +78,7 @@ fn anchor_cpi_test() {
 
     assert!(result
         .logs
-        .contains(&"Program log: Chris is pulling the power switch!".to_string()));
+        .contains(&"Program log: Chris is pulling the power switch! 123".to_string()));
     assert!(result
         .logs
         .contains(&"Program log: The power is now on.".to_string()));
@@ -101,7 +101,7 @@ fn anchor_cpi_test() {
 
     assert!(result
         .logs
-        .contains(&"Program log: Ashley is pulling the power switch!".to_string()));
+        .contains(&"Program log: Ashley is pulling the power switch! 123".to_string()));
     assert!(result
         .logs
         .contains(&"Program log: The power is now off!".to_string()));

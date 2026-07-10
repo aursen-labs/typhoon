@@ -59,6 +59,12 @@
                 {
                     "name": "name",
                     "type": "string"
+                },
+                {
+                    "name": "details",
+                    "type": {
+                        "defined": "Details"
+                    }
                 }
             ]
         }
@@ -87,6 +93,22 @@
                     {
                         "name": "is_on",
                         "type": "bool"
+                    },
+                    {
+                        "name": "name",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Details",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "info",
+                        "type": "string"
                     }
                 ]
             }
