@@ -54,7 +54,7 @@ pub struct Increment {
     pub counter: Mut<Account<Counter>>,
 }
 
-pub fn initialize(ctx: Init) -> ProgramResult {
+pub fn initialize(mut ctx: Init) -> ProgramResult {
     assert!(ctx.authority.is_none());
 
     *ctx.counter.mut_data()? = Counter {
@@ -71,7 +71,7 @@ pub fn initialize(ctx: Init) -> ProgramResult {
     Ok(())
 }
 
-pub fn increment(ctx: Increment) -> ProgramResult {
+pub fn increment(mut ctx: Increment) -> ProgramResult {
     ctx.counter.mut_data()?.count += 1;
 
     Ok(())

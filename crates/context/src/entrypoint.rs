@@ -1,6 +1,8 @@
-use core::{cmp::min, mem::MaybeUninit, ptr::with_exposed_provenance_mut};
-use pinocchio::{AccountView, MAX_TX_ACCOUNTS};
-use solana_account_view::{RuntimeAccount, MAX_PERMITTED_DATA_INCREASE};
+use {
+    core::{cmp::min, mem::MaybeUninit, ptr::with_exposed_provenance_mut},
+    pinocchio::{AccountView, MAX_TX_ACCOUNTS},
+    solana_account_view::{RuntimeAccount, MAX_PERMITTED_DATA_INCREASE},
+};
 
 /// The "static" size of an account in the input buffer.
 ///

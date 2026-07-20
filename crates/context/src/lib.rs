@@ -7,16 +7,13 @@ mod iterator;
 mod program_id;
 mod remaining_accounts;
 
-use pinocchio::ProgramResult;
-
-pub use {arg::*, array::*, iterator::*, program_id::*, remaining_accounts::*};
-
-use {crate::entrypoint::deserialize, core::mem::MaybeUninit};
 use {
-    bytemuck::NoUninit, pastey::paste, solana_account_view::AccountView, solana_address::Address,
+    crate::entrypoint::deserialize, bytemuck::NoUninit, core::mem::MaybeUninit, pastey::paste,
+    pinocchio::ProgramResult, solana_account_view::AccountView, solana_address::Address,
     solana_instruction_view::cpi::set_return_data, solana_program_error::ProgramError,
     typhoon_errors::Error,
 };
+pub use {arg::*, array::*, iterator::*, program_id::*, remaining_accounts::*};
 
 /// Marker trait for context types. This trait is used only for identification purposes.
 pub trait Context {}
@@ -153,6 +150,16 @@ macro_rules! entrypoint {
     };
 }
 
+/// # Safety
+///
+/// This must only be called by the Solana runtime from the program's
+/// `entrypoint`. `input` and `data` must be the raw pointers passed in by the
+/// runtime, pointing to a valid serialized instruction context:
+/// - `data` points to the instruction data, immediately preceded by a `u64`
+///   length prefix and followed by the 32-byte program id.
+/// - `input` points to the serialized account buffer in the runtime's layout.
+///
+/// The serialized input must contain no more than 255 accounts.
 #[inline(always)]
 pub unsafe fn process_program_input<F>(input: *mut u8, data: *mut u8, process_instruction: F) -> u64
 where

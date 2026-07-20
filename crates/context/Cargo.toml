@@ -8,6 +8,9 @@ authors.workspace = true
 repository.workspace = true
 rust-version.workspace = true
 
+[features]
+account-resize = []
+
 [dependencies]
 bytemuck.workspace = true
 pastey.workspace = true

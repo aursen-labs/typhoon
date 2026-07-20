@@ -55,30 +55,30 @@ pub fn take(mut ctx: Take) -> ProgramResult {
     );
     let signer = CpiSigner::from(&seeds);
 
-    Transfer {
-        from: ctx.vault.as_ref(),
-        to: ctx.taker_ata_a.as_ref(),
-        authority: ctx.escrow.as_ref(),
+    Transfer::new(
+        ctx.vault.as_ref(),
+        ctx.taker_ata_a.as_ref(),
+        ctx.escrow.as_ref(),
         amount,
-    }
+    )
     .invoke_signed(&[signer.clone()])?;
 
-    SplCloseAccount {
-        account: ctx.vault.as_ref(),
-        authority: ctx.escrow.as_ref(),
-        destination: ctx.maker.as_ref(),
-    }
+    SplCloseAccount::new(
+        ctx.vault.as_ref(),
+        ctx.maker.as_ref(),
+        ctx.escrow.as_ref(),
+    )
     .invoke_signed(&[signer])?;
 
     drop(escrow);
-    ctx.escrow.close(&ctx.maker)?;
+    ctx.escrow.close(&mut ctx.maker)?;
 
-    Transfer {
-        from: ctx.taker_ata_b.as_ref(),
-        to: ctx.maker_ata_b.as_ref(),
-        authority: ctx.taker.as_ref(),
-        amount: receive,
-    }
+    Transfer::new(
+        ctx.taker_ata_b.as_ref(),
+        ctx.maker_ata_b.as_ref(),
+        ctx.taker.as_ref(),
+        receive,
+    )
     .invoke()?;
 
     Ok(())

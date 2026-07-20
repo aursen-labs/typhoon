@@ -30,7 +30,7 @@ pub struct Make {
     pub system_program: Program<System>,
 }
 
-pub fn make(ctx: Make) -> ProgramResult {
+pub fn make(mut ctx: Make) -> ProgramResult {
     let mut escrow_state = ctx.escrow.mut_data()?;
 
     *escrow_state = Escrow {
@@ -42,12 +42,12 @@ pub fn make(ctx: Make) -> ProgramResult {
         bump: ctx.bumps.escrow,
     };
 
-    Transfer {
-        from: ctx.maker_ata_a.as_ref(),
-        to: ctx.vault.as_ref(),
-        authority: ctx.maker.as_ref(),
-        amount: ctx.args.amount,
-    }
+    Transfer::new(
+        ctx.maker_ata_a.as_ref(),
+        ctx.vault.as_ref(),
+        ctx.maker.as_ref(),
+        ctx.args.amount,
+    )
     .invoke()?;
 
     Ok(())
