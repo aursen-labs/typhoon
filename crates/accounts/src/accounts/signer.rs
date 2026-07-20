@@ -1,5 +1,5 @@
 use {
-    crate::{AccountData, FromRaw, ReadableAccount, SignerAccount, UncheckedAccount},
+    crate::{AccountData, FromRaw, ReadableAccount, SignerAccount, UncheckedAccount, ValidateView},
     core::{marker::PhantomData, ops::Deref},
     solana_account_view::AccountView,
     typhoon_errors::{Error, ErrorCode},
@@ -36,6 +36,18 @@ where
 {
     pub(crate) acc: T,
     _phantom: PhantomData<&'a C>,
+}
+
+impl<T, C> ValidateView for Signer<'_, T, C>
+where
+    T: ReadableAccount + ValidateView,
+    C: SignerCheck,
+{
+    #[inline(always)]
+    fn validate(info: &AccountView) -> Result<(), Error> {
+        C::check(info)?;
+        T::validate(info)
+    }
 }
 
 impl<'a, T, C> TryFrom<&'a AccountView> for Signer<'a, T, C>

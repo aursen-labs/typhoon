@@ -42,6 +42,13 @@ impl Bencher {
         &self.payer
     }
 
+    /// Fund an account to the rent-exempt minimum for a zero-data account, so
+    /// it survives litesvm 0.12's rent check after receiving a transfer.
+    pub fn fund_rent_exempt(&mut self, address: &Address) {
+        let lamports = self.svm.minimum_balance_for_rent_exemption(0);
+        self.svm.airdrop(address, lamports).unwrap();
+    }
+
     pub fn hash(&self) -> Hash {
         self.svm.latest_blockhash()
     }

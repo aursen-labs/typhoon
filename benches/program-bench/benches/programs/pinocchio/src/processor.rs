@@ -23,7 +23,7 @@ pub fn process_log() -> ProgramResult {
 }
 
 #[inline(always)]
-pub fn process_create_account(accounts: &[AccountView]) -> ProgramResult {
+pub fn process_create_account(accounts: &mut [AccountView]) -> ProgramResult {
     let [payer, to, _rem @ ..] = accounts else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };

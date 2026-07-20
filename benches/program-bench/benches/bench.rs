@@ -76,6 +76,7 @@ pub fn runner(name: &str) -> BenchResult {
 
     let data = vec![3, 100, 0, 0, 0, 0, 0, 0, 0];
     let new_account = Keypair::new();
+    bencher.fund_rent_exempt(&new_account.pubkey());
     let tx = Transaction::new_signed_with_payer(
         &[Instruction {
             program_id,

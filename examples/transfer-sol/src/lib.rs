@@ -9,7 +9,7 @@ program_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 nostd_panic_handler!();
 no_allocator!();
-entrypoint!();
+entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => transfer_sol_with_cpi,
@@ -57,8 +57,9 @@ pub fn transfer_sol_with_cpi(
     Ok(())
 }
 
-pub fn transfer_sol_with_program(Arg(amount): Arg<PodU64>, ctx: Transfer) -> ProgramResult {
-    ctx.payer.send(&ctx.recipient, (*amount).into())?;
+pub fn transfer_sol_with_program(Arg(amount): Arg<PodU64>, mut ctx: Transfer) -> ProgramResult {
+    let amount = (*amount).into();
+    ctx.payer.send(&mut ctx.recipient, amount)?;
 
     Ok(())
 }

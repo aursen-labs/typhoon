@@ -1,20 +1,15 @@
-use {pinocchio::error::ProgramError, typhoon_accounts::WritableAccount, typhoon_errors::Error};
+use {typhoon_accounts::WritableAccount, typhoon_errors::Error};
 
 pub trait CloseAccount: WritableAccount {
     #[inline(always)]
-    fn close(&self, destination: &impl WritableAccount) -> Result<(), Error> {
-        let dest_lamports = destination.lamports();
-        let source_lamports = self.lamports();
-
-        destination.set_lamports(
-            dest_lamports
-                .checked_add(source_lamports)
-                .ok_or(ProgramError::ArithmeticOverflow)?,
-        );
+    fn close(&mut self, destination: &mut impl WritableAccount) -> Result<(), Error> {
+        let new_lamports = destination.lamports().wrapping_add(self.lamports());
+        destination.set_lamports(new_lamports);
         self.set_lamports(0);
 
-        self.assign(&pinocchio_system::ID);
-        self.resize(0)
+        // `AccountView::close` zeroes the owner, lamports, and data_len fields
+        // in one shot (set owner = system program, lamports = 0, data_len = 0).
+        self.as_mut().close().map_err(Into::into)
     }
 }
 

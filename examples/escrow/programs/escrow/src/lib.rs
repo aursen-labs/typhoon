@@ -6,7 +6,7 @@ pub mod instructions;
 
 nostd_panic_handler!();
 no_allocator!();
-entrypoint!();
+entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => make,

@@ -12,7 +12,7 @@ program_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 nostd_panic_handler!();
 no_allocator!();
-entrypoint!();
+entrypoint!(ROUTER);
 
 #[cfg(feature = "logging")]
 pub type LogError = SeedsError;

@@ -2,18 +2,15 @@ use {
     crate::Mint,
     pinocchio::{cpi::Signer as CpiSigner, sysvars::rent::Rent, AccountView, Address},
     pinocchio_token::{instructions::InitializeMint2, ID as TOKEN_PROGRAM_ID},
-    typhoon_accounts::{
-        Account, Mut, ReadableAccount, Signer, SignerCheck, SystemAccount, UncheckedAccount,
-        WritableAccount,
-    },
+    typhoon_accounts::{Account, Mut, Signer, SignerCheck, ValidateView, WritableAccount},
     typhoon_errors::Error,
     typhoon_utility::create_account_with_minimum_balance_signed,
 };
 
-pub trait SplCreateMint<'a, T: ReadableAccount>
+pub trait SplCreateMint<'a, T>
 where
-    Self: Sized + Into<&'a AccountView>,
-    T: ReadableAccount + TryFrom<&'a AccountView, Error = Error>,
+    Self: Sized + Into<&'a mut AccountView>,
+    T: ValidateView,
 {
     #[inline]
     fn create_mint(
@@ -24,8 +21,8 @@ where
         decimals: u8,
         freeze_authority: Option<&Address>,
         seeds: Option<&[CpiSigner]>,
-    ) -> Result<Mut<T>, Error> {
-        let info = self.into();
+    ) -> Result<Mut<'a, T>, Error> {
+        let info: &'a mut AccountView = self.into();
         create_account_with_minimum_balance_signed(
             info,
             Mint::LEN,
@@ -47,16 +44,9 @@ where
     }
 }
 
-macro_rules! impl_trait {
-    ($origin: ty) => {
-        impl<'a> SplCreateMint<'a, Account<'a, Mint>> for $origin {}
-        impl<'a, C> SplCreateMint<'a, Signer<'a, Account<'a, Mint>, C>> for $origin where
-            C: SignerCheck
-        {
-        }
-    };
-}
+impl<'a> SplCreateMint<'a, Account<'a, Mint>> for &'a mut AccountView {}
 
-impl_trait!(&'a AccountView);
-impl_trait!(SystemAccount<'a>);
-impl_trait!(UncheckedAccount<'a>);
+impl<'a, C> SplCreateMint<'a, Signer<'a, Account<'a, Mint>, C>> for &'a mut AccountView where
+    C: SignerCheck
+{
+}

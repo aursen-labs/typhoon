@@ -39,7 +39,7 @@ pub struct Take {
     pub system_program: Program<System>,
 }
 
-pub fn take(ctx: Take) -> ProgramResult {
+pub fn take(mut ctx: Take) -> ProgramResult {
     let escrow = ctx.escrow.data()?;
     let amount = { ctx.vault.data()?.amount() };
     let receive = { escrow.receive };

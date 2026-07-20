@@ -10,8 +10,6 @@ no_allocator!();
 
 program_id!("Bench111111111111111111111111111111111111111");
 
-entrypoint!();
-
 pub const ROUTER: EntryFn = basic_router! {
     0 => ping,
     1 => log,
@@ -20,6 +18,8 @@ pub const ROUTER: EntryFn = basic_router! {
     4 => unchecked_accounts,
     5 => accounts_c
 };
+
+entrypoint!(ROUTER);
 
 fn ping() -> ProgramResult {
     Ok(())
@@ -30,7 +30,7 @@ fn log() -> ProgramResult {
     Ok(())
 }
 
-fn create_account(ctx: CreateAccountContext) -> ProgramResult {
+fn create_account(mut ctx: CreateAccountContext) -> ProgramResult {
     ctx.account.mut_data()?.byte = 1;
 
     Ok(())

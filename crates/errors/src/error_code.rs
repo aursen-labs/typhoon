@@ -14,6 +14,7 @@ pub enum ErrorCode {
     InvalidReturnData,
     InvalidDataLength,
     InvalidDataAlignment,
+    AccountNotMutable,
 }
 
 impl TryFrom<u32> for ErrorCode {
@@ -33,6 +34,7 @@ impl TryFrom<u32> for ErrorCode {
             109 => Ok(ErrorCode::InvalidReturnData),
             110 => Ok(ErrorCode::InvalidDataLength),
             111 => Ok(ErrorCode::InvalidDataAlignment),
+            112 => Ok(ErrorCode::AccountNotMutable),
             _ => Err(ProgramError::InvalidArgument),
         }
     }
@@ -63,6 +65,7 @@ impl ToStr for ErrorCode {
             ErrorCode::InvalidReturnData => "Error: The return data is invalid",
             ErrorCode::InvalidDataLength => "Error: Invalid data length",
             ErrorCode::InvalidDataAlignment => "Error: Invalid data alignment",
+            ErrorCode::AccountNotMutable => "Error: Account is not mutable",
         }
     }
 }

@@ -74,7 +74,7 @@ pub fn gen_instructions(ixs: &[Instruction]) -> TokenStream {
 
                     cpi::invoke_signed_with_slice(
                         &instruction,
-                        unsafe { core::slice::from_raw_parts(account_infos.as_ptr() as _, accounts_len) },
+                        unsafe { core::slice::from_raw_parts(account_infos.as_ptr() as *const &AccountView, accounts_len) },
                         seeds
                     ).map_err(Into::into)
                 }

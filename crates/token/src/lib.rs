@@ -5,7 +5,7 @@ use {
     pinocchio::error::ProgramError,
     pinocchio_associated_token_account::ID as ATA_PROGRAM_ID,
     pinocchio_token::{
-        state::{Mint as SplMint, TokenAccount as SplTokenAccount},
+        state::{Account as SplTokenAccount, Mint as SplMint},
         ID as TOKEN_PROGRAM_ID,
     },
     solana_address::{address_eq, Address},

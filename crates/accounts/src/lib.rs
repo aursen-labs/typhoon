@@ -13,6 +13,16 @@ mod accounts;
 mod discriminator;
 mod programs;
 
+/// Validation logic that can be run against a borrowed [`AccountView`].
+///
+/// Read-only account wrappers (`Account`, `Signer`, `Program`, `SystemAccount`,
+/// `UncheckedAccount`) perform their checks while constructing a `&AccountView`
+/// reference. `Mut<'a, T>` reuses that same logic on a shared reborrow of its
+/// `&'a mut AccountView` slot, then keeps the mutable reference for itself.
+pub trait ValidateView {
+    fn validate(view: &AccountView) -> Result<(), Error>;
+}
+
 pub trait ReadableAccount: AsRef<AccountView> {
     #[inline(always)]
     fn address(&self) -> &Address {
@@ -35,27 +45,25 @@ pub trait ReadableAccount: AsRef<AccountView> {
     }
 }
 
-pub trait WritableAccount: ReadableAccount {
+pub trait WritableAccount: ReadableAccount + AsMut<AccountView> {
     #[inline(always)]
-    fn assign(&self, new_owner: &Address) {
+    fn assign(&mut self, new_owner: &Address) {
+        // SAFETY: `assign` is unsafe in `solana-account-view` because the caller
+        // must guarantee no live references into the owner field exist. Going
+        // through `&mut self` is enough to enforce that on the Rust side.
         unsafe {
-            self.as_ref().assign(new_owner);
+            self.as_mut().assign(new_owner);
         }
     }
 
     #[inline(always)]
-    fn resize(&self, new_len: usize) -> Result<(), Error> {
-        self.as_ref().resize(new_len).map_err(Into::into)
+    fn set_lamports(&mut self, lamports: u64) {
+        self.as_mut().set_lamports(lamports);
     }
 
     #[inline(always)]
-    fn set_lamports(&self, lamports: u64) {
-        self.as_ref().set_lamports(lamports);
-    }
-
-    #[inline(always)]
-    fn raw_mut_data(&self) -> Result<RefMut<'_, [u8]>, ProgramError> {
-        self.as_ref().try_borrow_mut()
+    fn raw_mut_data(&mut self) -> Result<RefMut<'_, [u8]>, ProgramError> {
+        self.as_mut().try_borrow_mut()
     }
 }
 
@@ -113,12 +121,12 @@ impl<T> ReadableAccountData for T where T: AccountData {}
 
 pub trait WritableAccountData: AccountData + WritableAccount {
     #[inline(always)]
-    fn mut_data(&self) -> Result<RefMut<'_, Self::Data>, Error>
+    fn mut_data(&mut self) -> Result<RefMut<'_, Self::Data>, Error>
     where
         <Self::Data as DataStrategy>::Strategy:
             for<'a> MutAccessor<'a, Self::Data, Data = &'a mut Self::Data>,
     {
-        RefMut::try_map(self.as_ref().try_borrow_mut()?, |data| {
+        RefMut::try_map(self.as_mut().try_borrow_mut()?, |data| {
             <<Self::Data as DataStrategy>::Strategy as MutAccessor<'_, Self::Data>>::access_mut(
                 &mut data[Self::Data::DISCRIMINATOR.len()..],
             )
