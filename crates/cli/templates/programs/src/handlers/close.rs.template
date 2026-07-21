@@ -4,10 +4,10 @@ use {
 };
 
 pub fn close(
-    CounterMut { counter }: CounterMut,
-    Destination { destination }: Destination,
+    CounterMut { mut counter }: CounterMut,
+    Destination { mut destination }: Destination,
 ) -> ProgramResult {
-    counter.close(&destination)?;
+    counter.close(&mut destination)?;
 
     Ok(())
 }

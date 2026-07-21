@@ -8,7 +8,7 @@ use {
 
 pub trait LamportsChecked: WritableAccount + SignerAccount {
     #[inline(always)]
-    fn send(&self, to: &impl WritableAccount, amount: u64) -> Result<(), Error> {
+    fn send(&mut self, to: &mut impl WritableAccount, amount: u64) -> Result<(), Error> {
         let payer_lamports = self.lamports();
         let recipient_lamports = to.lamports();
 
@@ -23,7 +23,7 @@ pub trait LamportsChecked: WritableAccount + SignerAccount {
     }
 
     #[inline(always)]
-    fn send_all(&self, to: &impl WritableAccount) -> Result<(), Error> {
+    fn send_all(&mut self, to: &mut impl WritableAccount) -> Result<(), Error> {
         let amount = self.lamports();
         let recipient_lamports = to.lamports();
 
@@ -34,5 +34,5 @@ pub trait LamportsChecked: WritableAccount + SignerAccount {
     }
 }
 
-impl<C: SignerCheck> LamportsChecked for Mut<Signer<'_, SystemAccount<'_>, C>> {}
-impl<C: SignerCheck> LamportsChecked for Mut<Signer<'_, UncheckedAccount<'_>, C>> {}
+impl<C: SignerCheck> LamportsChecked for Mut<'_, Signer<'_, SystemAccount<'_>, C>> {}
+impl<C: SignerCheck> LamportsChecked for Mut<'_, Signer<'_, UncheckedAccount<'_>, C>> {}

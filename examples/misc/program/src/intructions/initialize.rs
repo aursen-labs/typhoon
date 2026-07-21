@@ -16,7 +16,7 @@ pub struct Initialize {
     pub system_program: Program<System>,
 }
 
-pub fn initialize(context: Initialize) -> ProgramResult {
+pub fn initialize(mut context: Initialize) -> ProgramResult {
     context.account.mut_data()?.counter = 1;
     Ok(())
 }

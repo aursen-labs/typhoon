@@ -9,7 +9,7 @@ program_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 nostd_panic_handler!();
 no_allocator!();
-entrypoint!();
+entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => initialize,
@@ -62,13 +62,13 @@ pub struct SetValue {
     pub buffer: Mut<Account<Buffer>>,
 }
 
-pub fn initialize(ctx: Init) -> ProgramResult {
+pub fn initialize(mut ctx: Init) -> ProgramResult {
     ctx.buffer.mut_data()?.value1 = ctx.args.value.into();
 
     Ok(())
 }
 
-pub fn set_value(ctx: SetValue, Arg(more_args): Arg<PodU64>) -> ProgramResult {
+pub fn set_value(mut ctx: SetValue, Arg(more_args): Arg<PodU64>) -> ProgramResult {
     let mut data = ctx.buffer.mut_data()?;
     data.value1 = ctx.args.value.into();
     data.value2 = (*more_args).into();
@@ -76,7 +76,7 @@ pub fn set_value(ctx: SetValue, Arg(more_args): Arg<PodU64>) -> ProgramResult {
     Ok(())
 }
 
-pub fn set_and_add_values(ctx_a: SetValue, ctx_b: SetValue) -> ProgramResult {
+pub fn set_and_add_values(mut ctx_a: SetValue, mut ctx_b: SetValue) -> ProgramResult {
     let value_a = ctx_a.args.value.into();
     let value_b = ctx_b.args.value.into();
     ctx_a.buffer.mut_data()?.value1 = value_a;

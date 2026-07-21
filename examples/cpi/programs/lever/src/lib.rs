@@ -4,7 +4,7 @@ use {lever_interface::PowerStatus, solana_program_log::log, typhoon::prelude::*}
 
 nostd_panic_handler!();
 no_allocator!();
-entrypoint!();
+entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => initialize,
@@ -16,7 +16,7 @@ pub fn initialize(_ctx: InitializeLever) -> ProgramResult {
     Ok(())
 }
 
-pub fn switch_power(ctx: SetPowerStatus) -> ProgramResult {
+pub fn switch_power(mut ctx: SetPowerStatus) -> ProgramResult {
     let mut power = ctx.power.mut_data()?;
     power.change_status();
 

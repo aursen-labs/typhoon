@@ -17,7 +17,7 @@ program_entrypoint!(process_instruction);
 #[inline(always)]
 pub fn process_instruction(
     _program_id: &Address,
-    accounts: &[AccountView],
+    accounts: &mut [AccountView],
     instruction_data: &[u8],
 ) -> ProgramResult {
     let [instruction, remaining @ ..] = instruction_data else {

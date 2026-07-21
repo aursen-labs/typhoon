@@ -1,69 +1,100 @@
 use {
     crate::{
-        AccountData, FromRaw, ReadableAccount, Signer, SignerAccount, SignerCheck, WritableAccount,
+        AccountData, ReadableAccount, Signer, SignerAccount, SignerCheck, ValidateView,
+        WritableAccount,
     },
+    core::marker::PhantomData,
+    pinocchio::hint::unlikely,
     solana_account_view::AccountView,
-    typhoon_errors::Error,
+    typhoon_errors::{Error, ErrorCode},
 };
 
-pub struct Mut<T: ReadableAccount>(pub(crate) T);
+/// Writable wrapper around a [`solana_account_view::AccountView`].
+///
+/// `Mut<'a, T>` owns a mutable reborrow of an account slot. The inner `T` is
+/// kept only as a phantom marker so that:
+///
+/// 1. `T::validate` runs the same checks a read-only `T` would have run.
+/// 2. Trait selection (e.g. `AccountData::Data`, `SignerAccount`) mirrors the
+///    behavior of the underlying read-only wrapper.
+///
+/// The actual storage is the `&'a mut AccountView`, which is required by
+/// `solana-account-view` 2.0 for any mutating operation (`set_lamports`,
+/// `assign`, `try_borrow_mut`, `close`, ...). Storing the inner `T` *and* a
+/// `&mut` to the same slot would create aliasing references; the marker-only
+/// approach sidesteps that.
+pub struct Mut<'a, T> {
+    pub(crate) view: &'a mut AccountView,
+    _phantom: PhantomData<T>,
+}
 
-impl<'a, T> TryFrom<&'a AccountView> for Mut<T>
+impl<'a, T> Mut<'a, T> {
+    /// Build a `Mut` without running any validation. Used by initialization
+    /// helpers (token, utility-traits) that have just created an account and
+    /// know its state.
+    #[doc(hidden)]
+    #[inline(always)]
+    pub fn from_raw_info(info: &'a mut AccountView) -> Self {
+        Self {
+            view: info,
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<'a, T> TryFrom<&'a mut AccountView> for Mut<'a, T>
 where
-    T: TryFrom<&'a AccountView, Error = Error> + ReadableAccount,
+    T: ValidateView,
 {
     type Error = Error;
 
     #[inline(always)]
-    fn try_from(info: &'a AccountView) -> Result<Self, Self::Error> {
-        Ok(Mut(T::try_from(info)?))
+    fn try_from(view: &'a mut AccountView) -> Result<Self, Self::Error> {
+        if unlikely(!view.is_writable()) {
+            return Err(ErrorCode::AccountNotMutable.into());
+        }
+        T::validate(&*view)?;
+        Ok(Self {
+            view,
+            _phantom: PhantomData,
+        })
     }
 }
 
-impl<T> AsRef<AccountView> for Mut<T>
-where
-    T: ReadableAccount,
-{
+impl<'a, T> From<Mut<'a, T>> for &'a AccountView {
+    #[inline(always)]
+    fn from(value: Mut<'a, T>) -> Self {
+        value.view
+    }
+}
+
+impl<T> AsRef<AccountView> for Mut<'_, T> {
     #[inline(always)]
     fn as_ref(&self) -> &AccountView {
-        self.0.as_ref()
+        self.view
     }
 }
 
-impl<'a, T> From<Mut<T>> for &'a AccountView
-where
-    T: ReadableAccount + Into<&'a AccountView>,
-{
+impl<T> AsMut<AccountView> for Mut<'_, T> {
     #[inline(always)]
-    fn from(value: Mut<T>) -> Self {
-        value.0.into()
+    fn as_mut(&mut self) -> &mut AccountView {
+        self.view
     }
 }
 
-impl<T> ReadableAccount for Mut<T> where T: ReadableAccount {}
-impl<T> WritableAccount for Mut<T> where T: ReadableAccount {}
+impl<T> ReadableAccount for Mut<'_, T> {}
+impl<T> WritableAccount for Mut<'_, T> {}
 
-impl<T> AccountData for Mut<T>
+impl<T> AccountData for Mut<'_, T>
 where
-    T: AccountData + ReadableAccount,
+    T: AccountData,
 {
     type Data = T::Data;
 }
 
-impl<T, C> SignerAccount for Mut<Signer<'_, T, C>>
+impl<T, C> SignerAccount for Mut<'_, Signer<'_, T, C>>
 where
     T: ReadableAccount,
     C: SignerCheck,
 {
-}
-
-#[doc(hidden)]
-impl<'a, T> Mut<T>
-where
-    T: ReadableAccount + FromRaw<'a>,
-{
-    #[inline(always)]
-    pub fn from_raw_info(info: &'a AccountView) -> Self {
-        Mut(T::from_raw(info))
-    }
 }

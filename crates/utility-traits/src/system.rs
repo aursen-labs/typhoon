@@ -43,5 +43,5 @@ where
     }
 }
 
-impl<'a, C: SignerCheck> SystemCpi<'a> for Mut<SignerAccount<'a, SystemAccount<'a>, C>> {}
-impl<'a, C: SignerCheck> SystemCpi<'a> for Mut<SignerAccount<'a, UncheckedAccount<'a>, C>> {}
+impl<'a, C: SignerCheck> SystemCpi<'a> for Mut<'a, SignerAccount<'a, SystemAccount<'a>, C>> {}
+impl<'a, C: SignerCheck> SystemCpi<'a> for Mut<'a, SignerAccount<'a, UncheckedAccount<'a>, C>> {}

@@ -1,5 +1,5 @@
 [workspace]
-members = ["anchor", "pinocchio", "quasar", "star-frame", "typhoon"]
+members = ["anchor", "pinocchio", "star-frame", "typhoon"]
 resolver = "2"
 
 [workspace.package]

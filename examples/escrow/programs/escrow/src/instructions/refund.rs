@@ -22,7 +22,7 @@ pub struct Refund {
     pub system_program: Program<System>,
 }
 
-pub fn refund(ctx: Refund) -> ProgramResult {
+pub fn refund(mut ctx: Refund) -> ProgramResult {
     let escrow = ctx.escrow.data()?;
     let seed = escrow.seed.to_le_bytes();
     let seeds = seeds!(b"escrow", ctx.maker.address().as_ref(), seed.as_ref());
@@ -30,22 +30,23 @@ pub fn refund(ctx: Refund) -> ProgramResult {
 
     let amount = { ctx.vault.data()?.amount() };
 
-    Transfer {
-        from: ctx.vault.as_ref(),
-        to: ctx.maker_ata_a.as_ref(),
-        authority: ctx.escrow.as_ref(),
+    Transfer::new(
+        ctx.vault.as_ref(),
+        ctx.maker_ata_a.as_ref(),
+        ctx.escrow.as_ref(),
         amount,
-    }
+    )
     .invoke_signed(&[signer.clone()])?;
 
-    SplCloseAccount {
-        account: ctx.vault.as_ref(),
-        authority: ctx.escrow.as_ref(),
-        destination: ctx.maker.as_ref(),
-    }
+    SplCloseAccount::new(
+        ctx.vault.as_ref(),
+        ctx.maker.as_ref(),
+        ctx.escrow.as_ref(),
+    )
     .invoke_signed(&[signer])?;
 
-    ctx.escrow.close(&ctx.maker)?;
+    drop(escrow);
+    ctx.escrow.close(&mut ctx.maker)?;
 
     Ok(())
 }

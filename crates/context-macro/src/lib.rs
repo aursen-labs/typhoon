@@ -116,8 +116,7 @@ impl ToTokens for TokenGenerator {
             let args_field: Field = parse_quote!(pub #args_ident: &'info #name);
             struct_fields.push(&args_ident);
             FieldInjector::new(args_field).visit_item_struct_mut(account_struct);
-
-            let args_assign = quote!(let Arg(args) = Arg::<#name>::from_entrypoint(program_id, accounts, instruction_data)?;);
+            let args_assign = quote!(let (Arg(args), _) = Arg::<#name>::from_entrypoint(program_id, &mut [], instruction_data)?;);
 
             (args_assign, args_struct)
         }).unzip();
@@ -131,9 +130,9 @@ impl ToTokens for TokenGenerator {
                 #[inline(always)]
                 fn from_entrypoint(
                     program_id: &Address,
-                    accounts: &mut &'info [AccountView],
+                    accounts: &'info mut [AccountView],
                     instruction_data: &mut &'c [u8],
-                ) -> ProgramResult<Self> {
+                ) -> ProgramResult<(Self, &'info mut [AccountView])> {
                     let [#(#name_list,)* rem @ ..] = accounts else {
                         return Err(ProgramError::NotEnoughAccountKeys.into());
                     };
@@ -144,9 +143,8 @@ impl ToTokens for TokenGenerator {
                     #(#accounts_token)*
 
                     #bumps_var
-                    *accounts = rem;
 
-                    Ok(#name { #(#struct_fields),* })
+                    Ok((#name { #(#struct_fields),* }, rem))
                 }
             }
 

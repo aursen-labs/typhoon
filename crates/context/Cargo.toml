@@ -8,9 +8,13 @@ authors.workspace = true
 repository.workspace = true
 rust-version.workspace = true
 
+[features]
+account-resize = []
+
 [dependencies]
 bytemuck.workspace = true
 pastey.workspace = true
+pinocchio.workspace = true
 solana-account-view.workspace = true
 solana-address.workspace = true
 solana-instruction-view = { workspace = true, features = ["cpi"] }

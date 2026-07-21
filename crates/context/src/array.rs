@@ -24,17 +24,19 @@ where
     #[inline(always)]
     fn from_entrypoint(
         program_id: &'a Address,
-        accounts: &mut &'b [AccountView],
+        mut accounts: &'b mut [AccountView],
         instruction_data: &mut &'c [u8],
-    ) -> Result<Self, typhoon_errors::Error> {
+    ) -> Result<(Self, &'b mut [AccountView]), typhoon_errors::Error> {
         let mut result = [const { MaybeUninit::uninit() }; N];
 
         for r in result.iter_mut() {
-            r.write(T::from_entrypoint(program_id, accounts, instruction_data)?);
+            let (item, rest) = T::from_entrypoint(program_id, accounts, instruction_data)?;
+            r.write(item);
+            accounts = rest;
         }
 
         // SAFETY: All elements have been initialized by the loop above
         let array = unsafe { result.map(|item| item.assume_init()) };
-        Ok(Array(array))
+        Ok((Array(array), accounts))
     }
 }

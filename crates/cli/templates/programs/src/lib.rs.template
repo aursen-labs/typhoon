@@ -12,7 +12,7 @@ program_id!("{{program_id}}");
 nostd_panic_handler!();
 no_allocator!();
 
-entrypoint!();
+entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => initialize,

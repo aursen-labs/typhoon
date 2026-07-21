@@ -49,7 +49,7 @@ pub struct RandomContext {
     pub account: SystemAccount,
 }
 
-entrypoint!();
+entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => initialize,
@@ -62,7 +62,7 @@ pub fn initialize(_: Init) -> ProgramResult {
     Ok(())
 }
 
-pub fn increment(ctx: CounterMut) -> ProgramResult {
+pub fn increment(mut ctx: CounterMut) -> ProgramResult {
     ctx.counter.mut_data()?.count += 1;
 
     Ok(())
@@ -76,10 +76,10 @@ pub fn random_instruction(
 }
 
 pub fn close(
-    CounterMut { counter }: CounterMut,
-    Destination { destination }: Destination,
+    CounterMut { mut counter }: CounterMut,
+    Destination { mut destination }: Destination,
 ) -> ProgramResult {
-    counter.close(&destination)?;
+    counter.close(&mut destination)?;
 
     Ok(())
 }

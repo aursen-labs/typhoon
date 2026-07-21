@@ -1,7 +1,18 @@
-use {crate::ReadableAccount, solana_account_view::AccountView, typhoon_errors::Error};
+use {
+    crate::{ReadableAccount, ValidateView},
+    solana_account_view::AccountView,
+    typhoon_errors::Error,
+};
 
 pub struct UncheckedAccount<'a> {
     info: &'a AccountView,
+}
+
+impl ValidateView for UncheckedAccount<'_> {
+    #[inline(always)]
+    fn validate(_info: &AccountView) -> Result<(), Error> {
+        Ok(())
+    }
 }
 
 impl<'a> TryFrom<&'a AccountView> for UncheckedAccount<'a> {

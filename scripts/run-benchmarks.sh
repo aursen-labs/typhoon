@@ -27,9 +27,7 @@ cargo build-sbf
 cd ..
 
 echo "Building quasar..."
-cd quasar
-cargo build-sbf
-cd ..
+cargo build-sbf --manifest-path quasar/Cargo.toml --sbf-out-dir target/deploy
 
 echo "🚀 Running benchmarks..."
 cd ../..

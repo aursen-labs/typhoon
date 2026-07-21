@@ -13,7 +13,7 @@ program_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 nostd_panic_handler!();
 no_allocator!();
-entrypoint!();
+entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => mint_from_escrow
@@ -64,12 +64,12 @@ pub struct MintFromEscrow {
 }
 
 pub fn mint_from_escrow(ctx: MintFromEscrow) -> ProgramResult {
-    MintTo {
-        mint: ctx.mint.as_ref(),
-        account: ctx.token_account.as_ref(),
-        mint_authority: ctx.escrow.as_ref(),
-        amount: ctx.args.amount,
-    }
+    MintTo::new(
+        ctx.mint.as_ref(),
+        ctx.token_account.as_ref(),
+        ctx.escrow.as_ref(),
+        ctx.args.amount,
+    )
     .invoke_signed(&[CpiSigner::from(&seeds!(
         b"escrow".as_ref(),
         &[ctx.bumps.escrow]

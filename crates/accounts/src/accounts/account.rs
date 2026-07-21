@@ -1,5 +1,5 @@
 use {
-    crate::{discriminator_matches, AccountData, FromRaw, ReadableAccount, System},
+    crate::{discriminator_matches, AccountData, FromRaw, ReadableAccount, System, ValidateView},
     core::marker::PhantomData,
     pinocchio::hint::unlikely,
     solana_account_view::AccountView,
@@ -16,14 +16,12 @@ where
     pub(crate) _phantom: PhantomData<T>,
 }
 
-impl<'a, T> TryFrom<&'a AccountView> for Account<'a, T>
+impl<T> ValidateView for Account<'_, T>
 where
     T: CheckOwner + Discriminator,
 {
-    type Error = Error;
-
     #[inline(always)]
-    fn try_from(account: &'a AccountView) -> Result<Self, Self::Error> {
+    fn validate(account: &AccountView) -> Result<(), Error> {
         // Check data length first - this is the cheapest check and most likely to fail
         if unlikely(account.data_len() < T::DISCRIMINATOR.len()) {
             return Err(ProgramError::AccountDataTooSmall.into());
@@ -34,7 +32,7 @@ where
             return Err(ErrorCode::AccountDiscriminatorMismatch.into());
         }
 
-        let owner = unsafe { account.owner() };
+        let owner = account.owner();
 
         // Verify account ownership - checked after discriminator for better branch prediction
         if unlikely(!T::owned_by(owner)) {
@@ -49,6 +47,19 @@ where
             }
         }
 
+        Ok(())
+    }
+}
+
+impl<'a, T> TryFrom<&'a AccountView> for Account<'a, T>
+where
+    T: CheckOwner + Discriminator,
+{
+    type Error = Error;
+
+    #[inline(always)]
+    fn try_from(account: &'a AccountView) -> Result<Self, Self::Error> {
+        <Account<'a, T> as ValidateView>::validate(account)?;
         Ok(Account {
             account,
             _phantom: PhantomData,

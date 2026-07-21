@@ -1,5 +1,5 @@
 use {
-    pinocchio::{cpi::Signer, sysvars::rent::Rent, AccountView, Address, ProgramResult},
+    pinocchio::{cpi::Signer, sysvars::rent::Rent, AccountView, Address, ProgramResult, Resize},
     pinocchio_system::instructions::{Assign, CreateAccount, Transfer},
 };
 
@@ -14,7 +14,7 @@ use {
 /// via the `signers`.
 #[inline(always)]
 pub fn create_account_with_minimum_balance_signed(
-    account: &AccountView,
+    account: &mut AccountView,
     space: usize,
     owner: &Address,
     payer: &AccountView,
