@@ -1,5 +1,6 @@
 use {
-    crate::{ReadableAccount, ValidateView},
+    crate::ValidateView,
+    core::ops::Deref,
     solana_account_view::AccountView,
     typhoon_errors::Error,
 };
@@ -38,4 +39,11 @@ impl AsRef<AccountView> for UncheckedAccount<'_> {
     }
 }
 
-impl ReadableAccount for UncheckedAccount<'_> {}
+impl Deref for UncheckedAccount<'_> {
+    type Target = AccountView;
+
+    #[inline(always)]
+    fn deref(&self) -> &AccountView {
+        self.info
+    }
+}

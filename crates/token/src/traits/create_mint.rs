@@ -2,7 +2,7 @@ use {
     crate::Mint,
     pinocchio::{cpi::Signer as CpiSigner, sysvars::rent::Rent, AccountView, Address},
     pinocchio_token::{instructions::InitializeMint2, ID as TOKEN_PROGRAM_ID},
-    typhoon_accounts::{Account, Mut, Signer, SignerCheck, ValidateView, WritableAccount},
+    typhoon_accounts::{Account, Mut, Signer, SignerCheck, ValidateView},
     typhoon_errors::Error,
     typhoon_utility::create_account_with_minimum_balance_signed,
 };
@@ -16,7 +16,7 @@ where
     fn create_mint(
         self,
         rent: &Rent,
-        payer: &impl WritableAccount,
+        payer: &AccountView,
         mint_authority: &Address,
         decimals: u8,
         freeze_authority: Option<&Address>,
@@ -27,7 +27,7 @@ where
             info,
             Mint::LEN,
             &TOKEN_PROGRAM_ID,
-            payer.as_ref(),
+            payer,
             rent,
             seeds.unwrap_or_default(),
         )?;

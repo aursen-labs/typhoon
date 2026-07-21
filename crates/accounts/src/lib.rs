@@ -3,7 +3,6 @@
 pub use {accounts::*, discriminator::*, programs::*};
 use {
     solana_account_view::{AccountView, Ref, RefMut},
-    solana_address::Address,
     solana_program_error::ProgramError,
     typhoon_errors::Error,
     typhoon_traits::{Accessor, DataStrategy, Discriminator, MutAccessor},
@@ -23,53 +22,9 @@ pub trait ValidateView {
     fn validate(view: &AccountView) -> Result<(), Error>;
 }
 
-pub trait ReadableAccount: AsRef<AccountView> {
-    #[inline(always)]
-    fn address(&self) -> &Address {
-        self.as_ref().address()
-    }
+pub trait SignerAccount: AsRef<AccountView> {}
 
-    #[inline(always)]
-    fn owned_by(&self, owner: &Address) -> bool {
-        self.as_ref().owned_by(owner)
-    }
-
-    #[inline(always)]
-    fn lamports(&self) -> u64 {
-        self.as_ref().lamports()
-    }
-
-    #[inline(always)]
-    fn raw_data(&self) -> Result<Ref<'_, [u8]>, ProgramError> {
-        self.as_ref().try_borrow()
-    }
-}
-
-pub trait WritableAccount: ReadableAccount + AsMut<AccountView> {
-    #[inline(always)]
-    fn assign(&mut self, new_owner: &Address) {
-        // SAFETY: `assign` is unsafe in `solana-account-view` because the caller
-        // must guarantee no live references into the owner field exist. Going
-        // through `&mut self` is enough to enforce that on the Rust side.
-        unsafe {
-            self.as_mut().assign(new_owner);
-        }
-    }
-
-    #[inline(always)]
-    fn set_lamports(&mut self, lamports: u64) {
-        self.as_mut().set_lamports(lamports);
-    }
-
-    #[inline(always)]
-    fn raw_mut_data(&mut self) -> Result<RefMut<'_, [u8]>, ProgramError> {
-        self.as_mut().try_borrow_mut()
-    }
-}
-
-pub trait SignerAccount: ReadableAccount {}
-
-pub trait AccountData: ReadableAccount {
+pub trait AccountData: AsRef<AccountView> {
     type Data: Discriminator + DataStrategy;
 }
 
@@ -119,7 +74,7 @@ pub trait ReadableAccountData: AccountData {
 
 impl<T> ReadableAccountData for T where T: AccountData {}
 
-pub trait WritableAccountData: AccountData + WritableAccount {
+pub trait WritableAccountData: AccountData + AsMut<AccountView> {
     #[inline(always)]
     fn mut_data(&mut self) -> Result<RefMut<'_, Self::Data>, Error>
     where
@@ -135,7 +90,7 @@ pub trait WritableAccountData: AccountData + WritableAccount {
     }
 }
 
-impl<T> WritableAccountData for T where T: AccountData + WritableAccount {}
+impl<T> WritableAccountData for T where T: AccountData + AsMut<AccountView> {}
 
 pub trait FromRaw<'a> {
     fn from_raw(info: &'a AccountView) -> Self;
