@@ -13,5 +13,5 @@ idl = ["star_frame/idl"]
 
 [dependencies]
 star_frame = { version = "0.30.0", features = ["aggressive_inline"] }
-borsh = "1.6.1"
-bytemuck = "1.25.0"
+borsh = "1.8.0"
+bytemuck = "1.25.2"

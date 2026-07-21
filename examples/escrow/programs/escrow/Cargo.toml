@@ -23,10 +23,10 @@ typhoon-idl-generator.workspace = true
 
 [dev-dependencies]
 escrow-interface = { workspace = true, features = ["client"] }
-litesvm = "0.12.0"
-litesvm-token = "0.12.0"
+litesvm = "0.14.0"
+litesvm-token = "0.14.0"
 solana-keypair = "3.1"
 solana-native-token = "3.0"
 solana-signer = "3.0"
-solana-transaction = "3.0"
+solana-transaction = "4.1"
 spl-associated-token-account-interface = "2.0.0"
