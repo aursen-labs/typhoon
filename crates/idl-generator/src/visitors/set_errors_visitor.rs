@@ -38,7 +38,7 @@ impl KorokVisitor for SetErrorsVisitor {
         program.errors = errors
             .variants
             .into_iter()
-            .map(|v| ErrorNode::new(v.name.to_string(), v.discriminant as usize, v.msg))
+            .map(|v| ErrorNode::new(v.name.to_string(), v.discriminant, v.msg))
             .collect();
 
         Ok(())

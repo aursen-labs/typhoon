@@ -2,7 +2,7 @@ use {
     crate::{helpers::AttributesHelper, utils::extract_type},
     codama::{
         CamelCaseString, DefinedTypeLinkNode, Docs, InstructionAccountNode,
-        InstructionArgumentNode, InstructionNode, IsAccountSigner, KorokVisitor, Node,
+        InstructionArgumentNode, InstructionNode, IsSigner, KorokVisitor, Node,
         StructFieldTypeNode, StructTypeNode, TypeNode,
     },
     typhoon_syn::{Arguments, InstructionAccount},
@@ -34,7 +34,7 @@ impl KorokVisitor for ContextVisitor {
                     let args = Arguments::try_from(attrs.ast())?;
                     Ok(vec![InstructionArgumentNode {
                         name: CamelCaseString::new(format!("{}_args", korok.ast.ident)),
-                        r#type: match args {
+                        r#type: Box::new(match args {
                             Arguments::Values(arguments) => TypeNode::Struct(StructTypeNode {
                                 fields: arguments
                                     .iter()
@@ -43,8 +43,8 @@ impl KorokVisitor for ContextVisitor {
                                             name: CamelCaseString::new(el.name.to_string()),
                                             default_value_strategy: None,
                                             docs: Docs::new(),
-                                            r#type: extract_type(&el.ty)?,
-                                            default_value: None,
+                                            r#type: Box::new(extract_type(&el.ty)?),
+                                            default_value: Box::new(None),
                                         })
                                     })
                                     .collect::<Result<_, syn::Error>>()?,
@@ -52,10 +52,10 @@ impl KorokVisitor for ContextVisitor {
                             Arguments::Struct(ident) => {
                                 TypeNode::Link(DefinedTypeLinkNode::new(ident.to_string()))
                             }
-                        },
+                        }),
                         default_value_strategy: None,
                         docs: Docs::new(),
-                        default_value: None,
+                        default_value: Box::new(None),
                     }])
                 })
                 .transpose()?
@@ -84,11 +84,11 @@ impl KorokVisitor for ContextVisitor {
         }
         let account = InstructionAccount::try_from(korok.ast)?;
         korok.node = Some(Node::InstructionAccount(InstructionAccountNode {
-            default_value: None,
+            default_value: Box::new(None),
             docs: Docs::from(account.docs.clone()),
-            is_optional: account.meta.is_optional,
+            is_optional: Some(account.meta.is_optional),
             is_signer: if account.meta.is_optional && account.meta.is_signer {
-                IsAccountSigner::Either
+                IsSigner::Either
             } else {
                 account.meta.is_signer.into()
             },
@@ -104,7 +104,7 @@ impl KorokVisitor for ContextVisitor {
 mod tests {
     use {
         super::*,
-        codama::{CodamaResult, IsAccountSigner, KorokVisitable, Node, StructKorok},
+        codama::{CodamaResult, IsSigner, KorokVisitable, Node, StructKorok},
         syn::{parse_quote, Item},
     };
 
@@ -131,8 +131,8 @@ mod tests {
         };
         assert_eq!(payer.name.as_str(), "payer");
         assert!(payer.is_writable);
-        assert_eq!(payer.is_signer, IsAccountSigner::True);
-        assert!(!payer.is_optional);
+        assert_eq!(payer.is_signer, IsSigner::True);
+        assert_eq!(payer.is_optional, Some(false));
         assert_eq!(payer.docs[0], "Pays for the account creation.");
 
         let Some(Node::InstructionAccount(optional)) = &korok.fields[1].node else {
@@ -140,8 +140,8 @@ mod tests {
         };
         assert_eq!(optional.name.as_str(), "optionalAuthority");
         assert!(!optional.is_writable);
-        assert_eq!(optional.is_signer, IsAccountSigner::Either);
-        assert!(optional.is_optional);
+        assert_eq!(optional.is_signer, IsSigner::Either);
+        assert_eq!(optional.is_optional, Some(true));
         assert_eq!(optional.docs[0], "Optional authority account.");
 
         Ok(())
