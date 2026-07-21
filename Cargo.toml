@@ -15,7 +15,7 @@ rust-version = "1.87"
 anyhow = "1.0"
 base64 = "0.22"
 bytemuck = "1.25"
-cargo-manifest = "0.20"
+cargo-manifest = "0.21"
 clap = { version = "4.6", features = ["derive"] }
 codama = "0.8.0"
 codama-attributes = "0.8.0"
@@ -26,7 +26,7 @@ codama-plugin-core = "0.8.0"
 codama-syn-helpers = "0.8.0"
 const-crypto = "0.3"
 handlebars = "6.4"
-hashbrown = "0.16"
+hashbrown = "0.17"
 heck = "0.5"
 pastey = "0.2.1"
 pinocchio = { version = "0.11", default-features = false }
@@ -65,4 +65,4 @@ typhoon-syn = { version = "0.3.0", path = "crates/syn" }
 typhoon-token = { version = "0.3.0", path = "crates/token" }
 typhoon-utility = { version = "0.3.0", path = "crates/utility" }
 typhoon-utility-traits = { version = "0.3.0", path = "crates/utility-traits" }
-wincode = { version = "0.5.0", default-features = false }
+wincode = { version = "0.5.5", default-features = false }

@@ -13,6 +13,6 @@ unexpected_cfgs = { level = "warn", check-cfg = [
 ] }
 
 [dependencies]
-pinocchio = "0.11.1"
+pinocchio = "0.11.2"
 pinocchio-system = "0.6.1"
-solana-program-log = "1.1.0"
+solana-program-log = "1.2.0"
