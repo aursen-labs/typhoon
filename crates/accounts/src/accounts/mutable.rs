@@ -1,9 +1,9 @@
 use {
-    crate::{
-        AccountData, ReadableAccount, Signer, SignerAccount, SignerCheck, ValidateView,
-        WritableAccount,
+    crate::{AccountData, Signer, SignerAccount, SignerCheck, ValidateView},
+    core::{
+        marker::PhantomData,
+        ops::{Deref, DerefMut},
     },
-    core::marker::PhantomData,
     pinocchio::hint::unlikely,
     solana_account_view::AccountView,
     typhoon_errors::{Error, ErrorCode},
@@ -82,8 +82,21 @@ impl<T> AsMut<AccountView> for Mut<'_, T> {
     }
 }
 
-impl<T> ReadableAccount for Mut<'_, T> {}
-impl<T> WritableAccount for Mut<'_, T> {}
+impl<T> Deref for Mut<'_, T> {
+    type Target = AccountView;
+
+    #[inline(always)]
+    fn deref(&self) -> &AccountView {
+        self.view
+    }
+}
+
+impl<T> DerefMut for Mut<'_, T> {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut AccountView {
+        self.view
+    }
+}
 
 impl<T> AccountData for Mut<'_, T>
 where
@@ -94,7 +107,7 @@ where
 
 impl<T, C> SignerAccount for Mut<'_, Signer<'_, T, C>>
 where
-    T: ReadableAccount,
+    T: AsRef<AccountView>,
     C: SignerCheck,
 {
 }

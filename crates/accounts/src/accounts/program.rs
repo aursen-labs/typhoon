@@ -1,6 +1,6 @@
 use {
-    crate::{ReadableAccount, ValidateView},
-    core::marker::PhantomData,
+    crate::ValidateView,
+    core::{marker::PhantomData, ops::Deref},
     pinocchio::hint::unlikely,
     solana_account_view::AccountView,
     solana_program_error::ProgramError,
@@ -66,4 +66,11 @@ impl<T> AsRef<AccountView> for Program<'_, T> {
     }
 }
 
-impl<T> ReadableAccount for Program<'_, T> {}
+impl<T> Deref for Program<'_, T> {
+    type Target = AccountView;
+
+    #[inline(always)]
+    fn deref(&self) -> &AccountView {
+        self.info
+    }
+}

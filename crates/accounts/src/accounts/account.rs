@@ -1,6 +1,6 @@
 use {
-    crate::{discriminator_matches, AccountData, FromRaw, ReadableAccount, System, ValidateView},
-    core::marker::PhantomData,
+    crate::{discriminator_matches, AccountData, FromRaw, System, ValidateView},
+    core::{marker::PhantomData, ops::Deref},
     pinocchio::hint::unlikely,
     solana_account_view::AccountView,
     solana_program_error::ProgramError,
@@ -87,7 +87,17 @@ where
     }
 }
 
-impl<T> ReadableAccount for Account<'_, T> where T: Discriminator {}
+impl<T> Deref for Account<'_, T>
+where
+    T: Discriminator,
+{
+    type Target = AccountView;
+
+    #[inline(always)]
+    fn deref(&self) -> &AccountView {
+        self.account
+    }
+}
 
 impl<T> AccountData for Account<'_, T>
 where

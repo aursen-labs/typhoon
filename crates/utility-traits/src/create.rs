@@ -1,6 +1,6 @@
 use {
     pinocchio::{cpi, sysvars::rent::Rent, AccountView, Address},
-    typhoon_accounts::{Account, Mut, Signer, SignerCheck, WritableAccount},
+    typhoon_accounts::{Account, Mut, Signer, SignerCheck},
     typhoon_errors::Error,
     typhoon_traits::Discriminator,
     typhoon_utility::create_account_with_minimum_balance_signed,
@@ -21,7 +21,7 @@ where
     fn create(
         self,
         rent: &Rent,
-        payer: &impl WritableAccount,
+        payer: &AccountView,
         owner: &Address,
         space: usize,
         seeds: Option<&[cpi::Signer]>,
@@ -31,7 +31,7 @@ where
             info,
             space,
             owner,
-            payer.as_ref(),
+            payer,
             rent,
             seeds.unwrap_or_default(),
         )?;

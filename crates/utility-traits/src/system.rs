@@ -2,12 +2,12 @@ use {
     pinocchio::{AccountView, Address},
     pinocchio_system::instructions::{Allocate, Assign, Transfer},
     typhoon_accounts::{
-        Mut, Signer as SignerAccount, SignerCheck, SystemAccount, UncheckedAccount, WritableAccount,
+        Mut, Signer as SignerAccount, SignerCheck, SystemAccount, UncheckedAccount,
     },
     typhoon_errors::Error,
 };
 
-pub trait SystemCpi<'a>: WritableAccount + Into<&'a AccountView>
+pub trait SystemCpi<'a>: AsRef<AccountView> + AsMut<AccountView> + Into<&'a AccountView>
 where
     Self: Sized,
 {
@@ -32,11 +32,11 @@ where
     }
 
     #[inline(always)]
-    fn transfer(&self, to: &impl WritableAccount, amount: u64) -> Result<(), Error> {
+    fn transfer(&self, to: &AccountView, amount: u64) -> Result<(), Error> {
         Transfer {
             from: self.as_ref(),
             lamports: amount,
-            to: to.as_ref(),
+            to,
         }
         .invoke()
         .map_err(Into::into)

@@ -3,7 +3,7 @@ use {
     pinocchio::{cpi::Signer as CpiSigner, sysvars::rent::Rent, AccountView, Address},
     pinocchio_associated_token_account::instructions::{Create, CreateIdempotent},
     pinocchio_token::{instructions::InitializeAccount3, ID as TOKEN_PROGRAM_ID},
-    typhoon_accounts::{Account, Mut, ReadableAccount, Signer, SignerCheck, WritableAccount},
+    typhoon_accounts::{Account, Mut, Signer, SignerCheck},
     typhoon_errors::Error,
     typhoon_utility::create_account_with_minimum_balance_signed,
 };
@@ -15,8 +15,8 @@ where
     fn create_token_account(
         self,
         rent: &Rent,
-        payer: &impl WritableAccount,
-        mint: &impl ReadableAccount,
+        payer: &AccountView,
+        mint: &AccountView,
         owner: &Address,
         seeds: Option<&[CpiSigner]>,
     ) -> Result<Mut<'a, T>, Error> {
@@ -25,14 +25,14 @@ where
             info,
             TokenAccount::LEN,
             &TOKEN_PROGRAM_ID,
-            payer.as_ref(),
+            payer,
             rent,
             seeds.unwrap_or_default(),
         )?;
 
         InitializeAccount3 {
             account: info,
-            mint: mint.as_ref(),
+            mint,
             owner,
         }
         .invoke()?;
@@ -42,20 +42,20 @@ where
 
     fn create_associated_token_account(
         self,
-        payer: &impl WritableAccount,
-        mint: &impl ReadableAccount,
-        owner: &impl ReadableAccount,
-        system_program: &impl ReadableAccount,
-        token_program: &impl ReadableAccount,
+        payer: &AccountView,
+        mint: &AccountView,
+        owner: &AccountView,
+        system_program: &AccountView,
+        token_program: &AccountView,
     ) -> Result<Mut<'a, T>, Error> {
         let info: &'a mut AccountView = self.into();
         Create {
-            funding_account: payer.as_ref(),
+            funding_account: payer,
             account: info,
-            wallet: owner.as_ref(),
-            mint: mint.as_ref(),
-            system_program: system_program.as_ref(),
-            token_program: token_program.as_ref(),
+            wallet: owner,
+            mint,
+            system_program,
+            token_program,
         }
         .invoke()?;
 
@@ -64,20 +64,20 @@ where
 
     fn create_idempotent_associated_token_account(
         self,
-        payer: &impl WritableAccount,
-        mint: &impl ReadableAccount,
-        owner: &impl ReadableAccount,
-        system_program: &impl ReadableAccount,
-        token_program: &impl ReadableAccount,
+        payer: &AccountView,
+        mint: &AccountView,
+        owner: &AccountView,
+        system_program: &AccountView,
+        token_program: &AccountView,
     ) -> Result<Mut<'a, T>, Error> {
         let info: &'a mut AccountView = self.into();
         CreateIdempotent {
-            funding_account: payer.as_ref(),
+            funding_account: payer,
             account: info,
-            wallet: owner.as_ref(),
-            mint: mint.as_ref(),
-            system_program: system_program.as_ref(),
-            token_program: token_program.as_ref(),
+            wallet: owner,
+            mint,
+            system_program,
+            token_program,
         }
         .invoke()?;
 

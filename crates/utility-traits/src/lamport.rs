@@ -1,14 +1,17 @@
 use {
-    pinocchio::error::ProgramError,
-    typhoon_accounts::{
-        Mut, Signer, SignerAccount, SignerCheck, SystemAccount, UncheckedAccount, WritableAccount,
-    },
+    core::ops::DerefMut,
+    pinocchio::{error::ProgramError, AccountView},
+    typhoon_accounts::{Mut, Signer, SignerAccount, SignerCheck, SystemAccount, UncheckedAccount},
     typhoon_errors::Error,
 };
 
-pub trait LamportsChecked: WritableAccount + SignerAccount {
+pub trait LamportsChecked: DerefMut<Target = AccountView> + SignerAccount {
     #[inline(always)]
-    fn send(&mut self, to: &mut impl WritableAccount, amount: u64) -> Result<(), Error> {
+    fn send(
+        &mut self,
+        to: &mut impl DerefMut<Target = AccountView>,
+        amount: u64,
+    ) -> Result<(), Error> {
         let payer_lamports = self.lamports();
         let recipient_lamports = to.lamports();
 
@@ -23,7 +26,7 @@ pub trait LamportsChecked: WritableAccount + SignerAccount {
     }
 
     #[inline(always)]
-    fn send_all(&mut self, to: &mut impl WritableAccount) -> Result<(), Error> {
+    fn send_all(&mut self, to: &mut impl DerefMut<Target = AccountView>) -> Result<(), Error> {
         let amount = self.lamports();
         let recipient_lamports = to.lamports();
 

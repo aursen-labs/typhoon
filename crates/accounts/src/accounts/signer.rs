@@ -1,5 +1,5 @@
 use {
-    crate::{AccountData, FromRaw, ReadableAccount, SignerAccount, UncheckedAccount, ValidateView},
+    crate::{AccountData, FromRaw, SignerAccount, UncheckedAccount, ValidateView},
     core::{marker::PhantomData, ops::Deref},
     solana_account_view::AccountView,
     typhoon_errors::{Error, ErrorCode},
@@ -31,7 +31,7 @@ impl SignerCheck for NoCheck {}
 
 pub struct Signer<'a, T = UncheckedAccount<'a>, C = Check>
 where
-    T: ReadableAccount,
+    T: AsRef<AccountView>,
     C: SignerCheck,
 {
     pub(crate) acc: T,
@@ -40,7 +40,7 @@ where
 
 impl<T, C> ValidateView for Signer<'_, T, C>
 where
-    T: ReadableAccount + ValidateView,
+    T: AsRef<AccountView> + ValidateView,
     C: SignerCheck,
 {
     #[inline(always)]
@@ -53,7 +53,7 @@ where
 impl<'a, T, C> TryFrom<&'a AccountView> for Signer<'a, T, C>
 where
     C: SignerCheck,
-    T: ReadableAccount + TryFrom<&'a AccountView, Error = Error>,
+    T: AsRef<AccountView> + TryFrom<&'a AccountView, Error = Error>,
 {
     type Error = Error;
 
@@ -71,7 +71,7 @@ where
 impl<'a, T, C> From<Signer<'a, T, C>> for &'a AccountView
 where
     C: SignerCheck,
-    T: ReadableAccount + Into<&'a AccountView>,
+    T: AsRef<AccountView> + Into<&'a AccountView>,
 {
     #[inline(always)]
     fn from(value: Signer<'a, T, C>) -> Self {
@@ -82,7 +82,7 @@ where
 impl<T, C> AsRef<AccountView> for Signer<'_, T, C>
 where
     C: SignerCheck,
-    T: ReadableAccount,
+    T: AsRef<AccountView>,
 {
     #[inline(always)]
     fn as_ref(&self) -> &AccountView {
@@ -92,7 +92,7 @@ where
 
 impl<T, C> SignerAccount for Signer<'_, T, C>
 where
-    T: ReadableAccount,
+    T: AsRef<AccountView>,
     C: SignerCheck,
 {
 }
@@ -100,7 +100,7 @@ where
 impl<T, C> Deref for Signer<'_, T, C>
 where
     C: SignerCheck,
-    T: ReadableAccount,
+    T: AsRef<AccountView>,
 {
     type Target = T;
 
@@ -109,24 +109,17 @@ where
     }
 }
 
-impl<T, C> ReadableAccount for Signer<'_, T, C>
-where
-    C: SignerCheck,
-    T: ReadableAccount,
-{
-}
-
 impl<T, C> AccountData for Signer<'_, T, C>
 where
     C: SignerCheck,
-    T: AccountData + ReadableAccount,
+    T: AccountData + AsRef<AccountView>,
 {
     type Data = T::Data;
 }
 
 impl<'a, T, C> FromRaw<'a> for Signer<'a, T, C>
 where
-    T: ReadableAccount + FromRaw<'a>,
+    T: AsRef<AccountView> + FromRaw<'a>,
     C: SignerCheck,
 {
     fn from_raw(info: &'a AccountView) -> Self {
