@@ -1,8 +1,5 @@
 use {
-    crate::ValidateView,
-    core::ops::Deref,
-    solana_account_view::AccountView,
-    typhoon_errors::Error,
+    crate::ValidateView, core::ops::Deref, solana_account_view::AccountView, typhoon_errors::Error,
 };
 
 pub struct UncheckedAccount<'a> {
