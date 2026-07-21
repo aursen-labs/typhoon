@@ -34,11 +34,10 @@ impl KorokVisitor for SetAccountVisitor {
 
         self.visitor.visit_struct(korok)?;
 
-        let Some(Node::DefinedType(DefinedTypeNode {
-            r#type: TypeNode::Struct(ty),
-            ..
-        })) = korok.node.take()
-        else {
+        let Some(Node::DefinedType(DefinedTypeNode { r#type, .. })) = korok.node.take() else {
+            return Ok(());
+        };
+        let TypeNode::Struct(ty) = *r#type else {
             return Ok(());
         };
 
