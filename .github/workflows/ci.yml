@@ -23,7 +23,7 @@ jobs:
       - name: Run Cargo fmt
         run: cargo +nightly fmt --all -- --check
       - name: Run Cargo clippy
-        run: cargo clippy --all-targets --all-features -- --check
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
   run_benchmarks:
     runs-on: ubuntu-latest
