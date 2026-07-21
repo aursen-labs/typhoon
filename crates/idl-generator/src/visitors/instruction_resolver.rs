@@ -1,8 +1,8 @@
 use {
     crate::utils::extract_type,
     codama::{
-        CamelCaseString, Docs, InstructionArgumentNode, InstructionNode,
-        InstructionOptionalAccountStrategy, KorokVisitor, Node, ProgramNode, UnsupportedItemKorok,
+        CamelCaseString, Docs, InstructionArgumentNode, InstructionNode, KorokVisitor, Node,
+        OptionalAccountStrategy, ProgramNode, UnsupportedItemKorok,
     },
     syn::Item,
     typhoon_syn::{Instruction, InstructionArg},
@@ -153,8 +153,8 @@ impl KorokVisitor for InstructionResolver {
                 InstructionArg::Type { ty, .. } => {
                     cache_ix.arguments.push(InstructionArgumentNode {
                         name: CamelCaseString::new(arg_name.to_string()),
-                        r#type: extract_type(ty.as_ref())?,
-                        default_value: None,
+                        r#type: Box::new(extract_type(ty.as_ref())?),
+                        default_value: Box::new(None),
                         default_value_strategy: None,
                         docs: Docs::new(),
                     });
@@ -162,7 +162,7 @@ impl KorokVisitor for InstructionResolver {
             }
         }
 
-        cache_ix.optional_account_strategy = InstructionOptionalAccountStrategy::ProgramId;
+        cache_ix.optional_account_strategy = Some(OptionalAccountStrategy::ProgramId);
 
         Ok(())
     }

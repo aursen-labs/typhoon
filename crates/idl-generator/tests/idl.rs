@@ -37,7 +37,7 @@ fn idl_test() {
             r#"{
   "kind": "rootNode",
   "standard": "codama",
-  "version": "1.0.0",
+  "version": "1.6.0",
   "program": {
     "kind": "programNode",
     "name": "test",
@@ -92,24 +92,28 @@ fn idl_test() {
       {
         "kind": "instructionNode",
         "name": "initialize",
+        "optionalAccountStrategy": "programId",
         "accounts": [
           {
             "kind": "instructionAccountNode",
             "name": "payer",
             "isWritable": true,
-            "isSigner": true
+            "isSigner": true,
+            "isOptional": false
           },
           {
             "kind": "instructionAccountNode",
             "name": "counter",
             "isWritable": true,
-            "isSigner": true
+            "isSigner": true,
+            "isOptional": false
           },
           {
             "kind": "instructionAccountNode",
             "name": "system",
             "isWritable": false,
-            "isSigner": false
+            "isSigner": false,
+            "isOptional": false
           }
         ],
         "arguments": [
@@ -137,12 +141,14 @@ fn idl_test() {
       {
         "kind": "instructionNode",
         "name": "increment",
+        "optionalAccountStrategy": "programId",
         "accounts": [
           {
             "kind": "instructionAccountNode",
             "name": "counter",
             "isWritable": true,
-            "isSigner": false
+            "isSigner": false,
+            "isOptional": false
           }
         ],
         "arguments": [
@@ -170,18 +176,21 @@ fn idl_test() {
       {
         "kind": "instructionNode",
         "name": "close",
+        "optionalAccountStrategy": "programId",
         "accounts": [
           {
             "kind": "instructionAccountNode",
             "name": "counter",
             "isWritable": true,
-            "isSigner": false
+            "isSigner": false,
+            "isOptional": false
           },
           {
             "kind": "instructionAccountNode",
             "name": "destination",
             "isWritable": true,
-            "isSigner": false
+            "isSigner": false,
+            "isOptional": false
           }
         ],
         "arguments": [
@@ -209,12 +218,14 @@ fn idl_test() {
       {
         "kind": "instructionNode",
         "name": "randomInstruction",
+        "optionalAccountStrategy": "programId",
         "accounts": [
           {
             "kind": "instructionAccountNode",
             "name": "account",
             "isWritable": false,
-            "isSigner": false
+            "isSigner": false,
+            "isOptional": false
           }
         ],
         "arguments": [
@@ -286,7 +297,10 @@ fn idl_test() {
       }
     ],
     "pdas": [
-      
+
+    ],
+    "events": [
+
     ],
     "errors": [
       {
@@ -295,6 +309,9 @@ fn idl_test() {
         "code": 0,
         "message": "my custom error"
       }
+    ],
+    "constants": [
+
     ]
   },
   "additionalPrograms": [
