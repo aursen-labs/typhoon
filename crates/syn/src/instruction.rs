@@ -137,17 +137,15 @@ pub struct InstructionsList(pub Vec<(usize, Ident)>);
 
 struct RouterEntry {
     discriminator: LitInt,
-    _arrow_eq: Token![=],
-    _arrow_gt: Token![>],
     handler_name: Ident,
 }
 
 impl Parse for RouterEntry {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let discriminator = input.parse()?;
+        input.parse::<Token![=>]>()?;
         Ok(RouterEntry {
-            discriminator: input.parse()?,
-            _arrow_eq: input.parse()?,
-            _arrow_gt: input.parse()?,
+            discriminator,
             handler_name: input.parse()?,
         })
     }

@@ -4,8 +4,8 @@ use {
     syn::{parse_quote, Type},
 };
 
-pub fn gen_type(idl_ty: &IdlType) -> Type {
-    match idl_ty {
+fn gen_primitive(idl_ty: &IdlType) -> Option<Type> {
+    Some(match idl_ty {
         IdlType::Bool => parse_quote!(bool),
         IdlType::U8 => parse_quote!(u8),
         IdlType::I8 => parse_quote!(i8),
@@ -19,6 +19,16 @@ pub fn gen_type(idl_ty: &IdlType) -> Type {
         IdlType::F64 => parse_quote!(f64),
         IdlType::U128 => parse_quote!(u128),
         IdlType::I128 => parse_quote!(i128),
+        IdlType::U256 | IdlType::I256 | IdlType::Generic(_) => unimplemented!(),
+        _ => return None,
+    })
+}
+
+pub fn gen_type(idl_ty: &IdlType) -> Type {
+    if let Some(ty) = gen_primitive(idl_ty) {
+        return ty;
+    }
+    match idl_ty {
         IdlType::Bytes => parse_quote!(Vec<u8>),
         IdlType::String => parse_quote!(String),
         IdlType::Pubkey => parse_quote!(Address),
@@ -64,25 +74,15 @@ pub fn gen_type(idl_ty: &IdlType) -> Type {
 
             parse_quote!(BTreeSet<#ty>)
         }
-        IdlType::U256 | IdlType::I256 | IdlType::Generic(_) => unimplemented!(),
+        _ => unreachable!(),
     }
 }
 
 pub fn gen_type_ref(idl_ty: &IdlType) -> Type {
+    if let Some(ty) = gen_primitive(idl_ty) {
+        return ty;
+    }
     match idl_ty {
-        IdlType::Bool => parse_quote!(bool),
-        IdlType::U8 => parse_quote!(u8),
-        IdlType::I8 => parse_quote!(i8),
-        IdlType::U16 => parse_quote!(u16),
-        IdlType::I16 => parse_quote!(i16),
-        IdlType::U32 => parse_quote!(u32),
-        IdlType::I32 => parse_quote!(i32),
-        IdlType::F32 => parse_quote!(f32),
-        IdlType::U64 => parse_quote!(u64),
-        IdlType::I64 => parse_quote!(i64),
-        IdlType::F64 => parse_quote!(f64),
-        IdlType::U128 => parse_quote!(u128),
-        IdlType::I128 => parse_quote!(i128),
         IdlType::Bytes => parse_quote!(&'a [u8]),
         IdlType::String => parse_quote!(&'a str),
         IdlType::Pubkey => parse_quote!(&'a Address),
@@ -120,6 +120,6 @@ pub fn gen_type_ref(idl_ty: &IdlType) -> Type {
 
             parse_quote!(&'a BTreeSet<#ty>)
         }
-        IdlType::U256 | IdlType::I256 | IdlType::Generic(_) => unimplemented!(),
+        _ => unreachable!(),
     }
 }

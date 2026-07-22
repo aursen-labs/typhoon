@@ -1,5 +1,5 @@
 use {
-    crate::{constraints::Constraints, Docs},
+    crate::{constraints::Constraints, parse_docs},
     proc_macro2::Span,
     syn::{
         parse_quote,
@@ -41,7 +41,7 @@ impl TryFrom<&Field> for InstructionAccount {
                 .ident
                 .clone()
                 .ok_or(syn::Error::new_spanned(value, "The field need to be named"))?,
-            docs: Docs::from(value.attrs.as_slice()).into_vec(),
+            docs: parse_docs(&value.attrs),
             constraints: Constraints::try_from(value.attrs.as_slice())?,
             meta: AccountMeta::default(),
             ty: None,

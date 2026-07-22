@@ -102,10 +102,6 @@ impl ModSegment {
             ModSegment::Path(_) => false,
         }
     }
-
-    pub fn is_path(&self) -> bool {
-        !self.is_ident()
-    }
 }
 
 #[cfg(test)]
