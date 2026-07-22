@@ -5,7 +5,7 @@ use {
         ConstantValueNode, DefinedTypeNode, DiscriminatorNode, Docs, KorokVisitor, Node, TypeNode,
     },
     typhoon_discriminator::DiscriminatorBuilder,
-    typhoon_syn::Docs as TyphoonDocs,
+    typhoon_syn::parse_docs,
 };
 
 pub struct SetAccountVisitor {
@@ -46,7 +46,7 @@ impl KorokVisitor for SetAccountVisitor {
         korok.node = Some(Node::Account(AccountNode {
             name: CamelCaseString::new(korok.ast.ident.to_string()),
             size: None,
-            docs: Docs::from(TyphoonDocs::from(korok.ast.attrs.as_slice()).into_vec()),
+            docs: Docs::from(parse_docs(&korok.ast.attrs)),
             data: codama::NestedTypeNode::Value(ty),
             pda: None,
             discriminators: vec![DiscriminatorNode::Constant(ConstantDiscriminatorNode::new(

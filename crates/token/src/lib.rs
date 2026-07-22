@@ -51,51 +51,37 @@ impl CheckProgramId for TokenProgram {
 
 pub struct SplStrategy;
 
-impl<'a> Accessor<'a, Mint> for SplStrategy {
-    type Data = &'a Mint;
+// `$wrapper` is `#[repr(transparent)]` over `$inner`, so the reference cast in
+// `access` preserves layout/alignment/lifetime.
+macro_rules! impl_accessor {
+    ($wrapper:ty, $inner:ty) => {
+        impl<'a> Accessor<'a, $wrapper> for SplStrategy {
+            type Data = &'a $wrapper;
 
-    #[inline(always)]
-    fn access(data: &'a [u8]) -> Result<Self::Data, ProgramError> {
-        // SAFETY: `Mint` is `#[repr(transparent)]` over `SplMint`,
-        // so the reference cast preserves layout/alignment/lifetime. The caller
-        // must also guarantee `data` encodes a valid token account state.
-        Ok(unsafe { transmute::<&SplMint, &Mint>(SplMint::from_bytes_unchecked(data)) })
-    }
+            #[inline(always)]
+            fn access(data: &'a [u8]) -> Result<Self::Data, ProgramError> {
+                // SAFETY: the caller must guarantee `data` encodes a valid account state.
+                Ok(
+                    unsafe {
+                        transmute::<&$inner, &$wrapper>(<$inner>::from_bytes_unchecked(data))
+                    },
+                )
+            }
 
-    #[inline(always)]
-    fn read(data: &mut &'a [u8]) -> Result<Self::Data, ProgramError> {
-        let Some((to_read, rem)) = data.split_at_checked(Mint::LEN) else {
-            return Err(ProgramError::InvalidInstructionData);
-        };
-        *data = rem;
-        <Self as Accessor<Mint>>::access(to_read)
-    }
+            #[inline(always)]
+            fn read(data: &mut &'a [u8]) -> Result<Self::Data, ProgramError> {
+                let Some((to_read, rem)) = data.split_at_checked(<$wrapper>::LEN) else {
+                    return Err(ProgramError::InvalidInstructionData);
+                };
+                *data = rem;
+                <Self as Accessor<$wrapper>>::access(to_read)
+            }
+        }
+    };
 }
 
-impl<'a> Accessor<'a, TokenAccount> for SplStrategy {
-    type Data = &'a TokenAccount;
-
-    #[inline(always)]
-    fn access(data: &'a [u8]) -> Result<Self::Data, ProgramError> {
-        // SAFETY: `TokenAccount` is `#[repr(transparent)]` over `SplTokenAccount`,
-        // so the reference cast preserves layout/alignment/lifetime. The caller
-        // must also guarantee `data` encodes a valid token account state.
-        Ok(unsafe {
-            transmute::<&SplTokenAccount, &TokenAccount>(SplTokenAccount::from_bytes_unchecked(
-                data,
-            ))
-        })
-    }
-
-    #[inline(always)]
-    fn read(data: &mut &'a [u8]) -> Result<Self::Data, ProgramError> {
-        let Some((to_read, rem)) = data.split_at_checked(TokenAccount::LEN) else {
-            return Err(ProgramError::InvalidInstructionData);
-        };
-        *data = rem;
-        <Self as Accessor<TokenAccount>>::access(to_read)
-    }
-}
+impl_accessor!(Mint, SplMint);
+impl_accessor!(TokenAccount, SplTokenAccount);
 
 #[repr(transparent)]
 pub struct Mint(SplMint);
@@ -115,15 +101,7 @@ impl Discriminator for Mint {
 impl CheckOwner for Mint {
     #[inline(always)]
     fn owned_by(program_id: &Address) -> bool {
-        #[cfg(feature = "token2022")]
-        {
-            address_eq(program_id, &TOKEN_PROGRAM_ID)
-                || address_eq(program_id, &TOKEN_2022_PROGRAM_ID)
-        }
-        #[cfg(not(feature = "token2022"))]
-        {
-            address_eq(program_id, &TOKEN_PROGRAM_ID)
-        }
+        TokenProgram::address_eq(program_id)
     }
 }
 
@@ -153,15 +131,7 @@ impl Discriminator for TokenAccount {
 impl CheckOwner for TokenAccount {
     #[inline(always)]
     fn owned_by(program_id: &Address) -> bool {
-        #[cfg(feature = "token2022")]
-        {
-            address_eq(program_id, &TOKEN_PROGRAM_ID)
-                || address_eq(program_id, &TOKEN_2022_PROGRAM_ID)
-        }
-        #[cfg(not(feature = "token2022"))]
-        {
-            address_eq(program_id, &TOKEN_PROGRAM_ID)
-        }
+        TokenProgram::address_eq(program_id)
     }
 }
 

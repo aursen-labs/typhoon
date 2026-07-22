@@ -1,9 +1,9 @@
 use {
-    crate::generator::Generator,
+    crate::generator::{generate_ctx_arg, Generator},
     heck::ToUpperCamelCase,
     proc_macro2::TokenStream,
     quote::{format_ident, quote},
-    syn::{parse_quote, Ident, Type},
+    syn::{Ident, Type},
     typhoon_syn::{Arguments, Context, Instruction, InstructionAccount, InstructionArg},
 };
 
@@ -13,17 +13,7 @@ fn generate_ctx(ctxs: &hashbrown::HashMap<String, Context>) -> TokenStream {
     let tokens = ctxs.values().map(|ctx| {
         let name = &ctx.name;
         let ctx_name = format_ident!("{}Context", name);
-        let (args_field, args_assign) = ctx
-            .arguments
-            .as_ref()
-            .map(|args| {
-                let arg_ty = match args {
-                    Arguments::Values(_) => &format_ident!("{name}Args"),
-                    Arguments::Struct(ident) => ident,
-                };
-                generate_arg((&format_ident!("args"), &parse_quote!(#arg_ty)))
-            })
-            .unzip();
+        let (args_field, args_assign) = generate_ctx_arg(ctx, generate_arg);
         let (acc_fields, acc_assigns) = generate_accounts(&ctx.accounts);
 
         quote! {

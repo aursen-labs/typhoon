@@ -26,6 +26,31 @@ pub struct TemplateContext {
     pub typhoon_idl_version: String,
 }
 
+impl TemplateContext {
+    fn new(
+        project_name: &str,
+        program_name: &str,
+        instruction_name: &str,
+        versions: (String, String, String),
+    ) -> Self {
+        let (typhoon_version, typhoon_builder_version, typhoon_idl_version) = versions;
+        Self {
+            program_id: Keypair::new().pubkey().to_string(),
+            project_name_snake: project_name.to_snake_case(),
+            project_name_kebab: project_name.to_kebab_case(),
+            project_name_pascal: project_name.to_pascal_case(),
+            program_name_snake: program_name.to_snake_case(),
+            program_name_kebab: program_name.to_kebab_case(),
+            program_name_pascal: program_name.to_pascal_case(),
+            instruction_name_snake: instruction_name.to_snake_case(),
+            instruction_name_pascal: instruction_name.to_pascal_case(),
+            typhoon_version,
+            typhoon_builder_version,
+            typhoon_idl_version,
+        }
+    }
+}
+
 pub struct Template {
     #[allow(dead_code)]
     pub name: String,
@@ -79,20 +104,16 @@ impl Template {
             };
 
         let program_name = program_name.unwrap_or_else(|| project_name.to_string());
-        let ctx = TemplateContext {
-            program_id: Keypair::new().pubkey().to_string(),
-            project_name_snake: project_name.to_snake_case(),
-            project_name_kebab: project_name.to_kebab_case(),
-            project_name_pascal: project_name.to_pascal_case(),
-            program_name_snake: program_name.to_snake_case(),
-            program_name_kebab: program_name.to_kebab_case(),
-            program_name_pascal: program_name.to_pascal_case(),
-            instruction_name_snake: "".to_snake_case(),
-            instruction_name_pascal: "".to_pascal_case(),
-            typhoon_version,
-            typhoon_builder_version,
-            typhoon_idl_version,
-        };
+        let ctx = TemplateContext::new(
+            project_name,
+            &program_name,
+            "",
+            (
+                typhoon_version,
+                typhoon_builder_version,
+                typhoon_idl_version,
+            ),
+        );
 
         let mut handlebars = Handlebars::new();
         handlebars.set_strict_mode(true);
@@ -134,20 +155,13 @@ impl Template {
     }
 
     pub fn generate_program(project_dir: &Path, program_name: &str) -> Result<()> {
-        let ctx = TemplateContext {
-            program_id: Keypair::new().pubkey().to_string(),
-            program_name_snake: program_name.to_snake_case(),
-            program_name_kebab: program_name.to_kebab_case(),
-            program_name_pascal: program_name.to_pascal_case(),
-            project_name_snake: program_name.to_snake_case(),
-            project_name_kebab: program_name.to_kebab_case(),
-            project_name_pascal: program_name.to_pascal_case(),
-            instruction_name_snake: "".to_snake_case(),
-            instruction_name_pascal: "".to_pascal_case(),
-            typhoon_version: env!("CARGO_PKG_VERSION").to_string(),
-            typhoon_builder_version: env!("CARGO_PKG_VERSION").to_string(),
-            typhoon_idl_version: env!("CARGO_PKG_VERSION").to_string(),
-        };
+        let v = env!("CARGO_PKG_VERSION");
+        let ctx = TemplateContext::new(
+            program_name,
+            program_name,
+            "",
+            (v.to_string(), v.to_string(), v.to_string()),
+        );
 
         let mut handlebars = Handlebars::new();
         handlebars.set_strict_mode(true);
@@ -193,20 +207,13 @@ impl Template {
         program_name: &str,
         instruction_name: &str,
     ) -> Result<()> {
-        let ctx = TemplateContext {
-            program_id: Keypair::new().pubkey().to_string(),
-            project_name_snake: program_name.to_snake_case(),
-            project_name_kebab: program_name.to_kebab_case(),
-            project_name_pascal: program_name.to_pascal_case(),
-            program_name_snake: program_name.to_snake_case(),
-            program_name_kebab: program_name.to_kebab_case(),
-            program_name_pascal: program_name.to_pascal_case(),
-            instruction_name_snake: instruction_name.to_snake_case(),
-            instruction_name_pascal: instruction_name.to_pascal_case(),
-            typhoon_version: env!("CARGO_PKG_VERSION").to_string(),
-            typhoon_builder_version: env!("CARGO_PKG_VERSION").to_string(),
-            typhoon_idl_version: env!("CARGO_PKG_VERSION").to_string(),
-        };
+        let v = env!("CARGO_PKG_VERSION");
+        let ctx = TemplateContext::new(
+            program_name,
+            program_name,
+            instruction_name,
+            (v.to_string(), v.to_string(), v.to_string()),
+        );
 
         let mut handlebars = Handlebars::new();
         handlebars.set_strict_mode(true);
