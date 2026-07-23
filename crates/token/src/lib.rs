@@ -60,7 +60,26 @@ macro_rules! impl_accessor {
 
             #[inline(always)]
             fn access(data: &'a [u8]) -> Result<Self::Data, ProgramError> {
-                // SAFETY: the caller must guarantee `data` encodes a valid account state.
+                // A mint (82 bytes) and a token account (165 bytes) share the same
+                // owner and have no discriminator, so the buffer length is the
+                // only thing that distinguishes them. Without this guard,
+                // `from_bytes_unchecked` would read past the end of a too-small buffer
+                // (out-of-bounds) and a mint could be deserialized as a token account
+                // (and vice versa).
+                #[cfg(not(feature = "token2022"))]
+                if data.len() != <$wrapper>::LEN {
+                    return Err(ProgramError::InvalidAccountData);
+                }
+                // Token-2022 accounts may carry trailing extension data, so only
+                // require that the base state fits.
+                #[cfg(feature = "token2022")]
+                if data.len() < <$wrapper>::LEN {
+                    return Err(ProgramError::InvalidAccountData);
+                }
+
+                // SAFETY: `data` holds at least `LEN` bytes (checked above), and
+                // `$wrapper` is `#[repr(transparent)]` over `$inner`, so the reference
+                // cast preserves layout/alignment/lifetime.
                 Ok(
                     unsafe {
                         transmute::<&$inner, &$wrapper>(<$inner>::from_bytes_unchecked(data))
@@ -149,4 +168,47 @@ pub fn find_associated_token_address(mint: &Address, owner: &Address) -> Address
         &ATA_PROGRAM_ID,
     )
     .0
+}
+
+#[cfg(test)]
+mod tests {
+    use {
+        super::{Mint, SplStrategy, TokenAccount},
+        typhoon_traits::Accessor,
+    };
+
+    fn access_mint(data: &[u8]) -> bool {
+        <SplStrategy as Accessor<'_, Mint>>::access(data).is_ok()
+    }
+
+    fn access_token(data: &[u8]) -> bool {
+        <SplStrategy as Accessor<'_, TokenAccount>>::access(data).is_ok()
+    }
+
+    #[test]
+    fn access_accepts_correct_sizes() {
+        assert!(access_mint(&[0u8; Mint::LEN]));
+        assert!(access_token(&[0u8; TokenAccount::LEN]));
+    }
+
+    #[test]
+    fn access_rejects_undersized_buffers() {
+        // Holds regardless of the `token2022` feature: a buffer smaller than the
+        // base state must be rejected rather than read out of bounds. A
+        // mint-sized buffer (82 bytes) is smaller than a token account (165), so
+        // it must never deserialize as one — the type-confusion case.
+        assert!(!access_mint(&[0u8; 10]));
+        assert!(!access_token(&[0u8; 10]));
+        assert!(!access_mint(&[]));
+        assert!(!access_token(&[0u8; Mint::LEN]));
+    }
+
+    // Without the `token2022` feature, classic SPL accounts have exact fixed
+    // sizes, so an oversized buffer (e.g. a token account read as a mint) is
+    // rejected too. With `token2022`, trailing extension bytes are allowed.
+    #[cfg(not(feature = "token2022"))]
+    #[test]
+    fn access_rejects_oversized_buffer_without_token2022() {
+        assert!(!access_mint(&[0u8; TokenAccount::LEN]));
+    }
 }
