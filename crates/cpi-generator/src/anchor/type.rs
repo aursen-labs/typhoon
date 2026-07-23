@@ -90,9 +90,17 @@ pub fn gen_type_ref(idl_ty: &IdlType) -> Type {
             let ty = gen_type_ref(inner);
             parse_quote!(Option<#ty>)
         }
-        IdlType::Vec(inner) | IdlType::Array(inner, _) => {
+        IdlType::Vec(inner) => {
             let ty = gen_type_ref(inner);
             parse_quote!(&'a [#ty])
+        }
+        IdlType::Array(inner, len) => {
+            let ty = gen_type_ref(inner);
+            let size = match len {
+                ArrayLen::Generic(size) => quote!(#size),
+                ArrayLen::Value(size) => quote!(#size),
+            };
+            parse_quote!(&'a [#ty; #size])
         }
         IdlType::Defined(defined) => {
             let ident = format_ident!("{}", defined.name());
@@ -121,5 +129,33 @@ pub fn gen_type_ref(idl_ty: &IdlType) -> Type {
             parse_quote!(&'a BTreeSet<#ty>)
         }
         _ => unreachable!(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use {super::*, quote::ToTokens};
+
+    #[test]
+    fn array_ref_is_reference_to_fixed_array() {
+        let arr = IdlType::Array(Box::new(IdlType::U8), ArrayLen::Value(32));
+
+        // The by-ref form must be a reference to the *same* fixed-size array the
+        // owned form produces — not a slice — so Borsh serializes it inline.
+        let owned = gen_type(&arr);
+        let expected: Type = parse_quote!(&'a #owned);
+        assert_eq!(
+            gen_type_ref(&arr).to_token_stream().to_string(),
+            expected.to_token_stream().to_string(),
+        );
+    }
+
+    #[test]
+    fn vec_ref_stays_a_slice() {
+        let vec = IdlType::Vec(Box::new(IdlType::U8));
+        assert_eq!(
+            gen_type_ref(&vec).to_token_stream().to_string(),
+            quote!(&'a [u8]).to_string(),
+        );
     }
 }
