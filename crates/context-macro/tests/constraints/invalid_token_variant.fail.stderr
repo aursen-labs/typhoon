@@ -1,5 +1,5 @@
 error: Invalid variant for the token constraint.
-  --> tests/constraints/invalid_token_variant.fail.rs:25:26
+  --> tests/constraints/invalid_token_variant.fail.rs:22:26
    |
-25 |         token::authority = mint
+22 |         token::authority = mint
    |                          ^

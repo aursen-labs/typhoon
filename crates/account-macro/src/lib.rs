@@ -78,7 +78,7 @@ pub fn derive_account(item: proc_macro::TokenStream) -> proc_macro::TokenStream 
         impl CheckOwner for #name #ty_generics #where_clause {
             #[inline(always)]
             fn owned_by(owner: &Address) -> bool {
-                address_eq(owner, &crate::ID)
+                pinocchio::address::address_eq(owner, &crate::ID)
             }
         }
 

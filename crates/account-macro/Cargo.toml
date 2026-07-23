@@ -19,6 +19,7 @@ typhoon-discriminator.workspace = true
 
 [dev-dependencies]
 bytemuck = { workspace = true, features = ["derive"] }
+pinocchio.workspace = true
 solana-address = { workspace = true, features = ["bytemuck", "copy"] }
 solana-instruction-view = { workspace = true, features = ["cpi"] }
 trybuild.workspace = true

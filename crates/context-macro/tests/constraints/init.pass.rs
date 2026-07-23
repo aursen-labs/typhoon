@@ -1,10 +1,9 @@
 use {
     bytemuck::{AnyBitPattern, NoUninit},
     pinocchio::{
-        address::{self, address_eq, declare_id, Address},
+        address::Address,
         cpi::{Seed, Signer as CpiSigner},
         error::ProgramError,
-        hint,
         instruction::seeds,
         sysvars::{rent::Rent, Sysvar},
         AccountView,

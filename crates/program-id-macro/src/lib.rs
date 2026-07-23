@@ -38,14 +38,14 @@ impl ToTokens for ProgramId {
         let name = &self.name;
 
         quote! {
-            declare_id!(#id);
+            pinocchio::address::declare_id!(#id);
 
             pub struct #name;
 
             impl CheckProgramId for #name {
                 #[inline(always)]
                 fn address_eq(program_id: &Address) -> bool {
-                    address_eq(program_id, &crate::ID)
+                    pinocchio::address::address_eq(program_id, &crate::ID)
                 }
             }
         }

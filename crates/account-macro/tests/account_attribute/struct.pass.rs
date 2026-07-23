@@ -1,6 +1,6 @@
 use {
     bytemuck::{AnyBitPattern, NoUninit},
-    solana_address::{address_eq, Address},
+    solana_address::Address,
     solana_instruction_view::{cpi::Seed, seeds},
     typhoon_account_macro::*,
     typhoon_traits::{BytemuckStrategy, CheckOwner, DataStrategy, Discriminator},

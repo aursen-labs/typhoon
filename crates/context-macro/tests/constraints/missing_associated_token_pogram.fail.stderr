@@ -1,11 +1,11 @@
 error: One constraint requires including the `Program<AtaTokenProgram>` account.
-  --> tests/constraints/missing_associated_token_pogram.fail.rs:22:1
+  --> tests/constraints/missing_associated_token_pogram.fail.rs:19:1
    |
-22 | / pub struct InitContext {
-23 | |     pub payer: Mut<Signer>,
-24 | |     #[constraint(
-25 | |         init,
+19 | / pub struct InitContext {
+20 | |     pub payer: Mut<Signer>,
+21 | |     #[constraint(
+22 | |         init,
 ...  |
-32 | |     pub system_program: Program<System>,
-33 | | }
+29 | |     pub system_program: Program<System>,
+30 | | }
    | |_^

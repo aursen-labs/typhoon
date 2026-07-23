@@ -1,5 +1,5 @@
 error: Invalid seeds format
-  --> tests/constraints/invalid_seeds_syntax.fail.rs:26:17
+  --> tests/constraints/invalid_seeds_syntax.fail.rs:23:17
    |
-26 |         seeds = &[&args.admin],
+23 |         seeds = &[&args.admin],
    |                 ^^^^^^^^^^^^^^

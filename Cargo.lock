@@ -1508,6 +1508,7 @@ name = "typhoon-account-macro"
 version = "0.3.0"
 dependencies = [
  "bytemuck",
+ "pinocchio",
  "proc-macro2",
  "quote",
  "solana-address",
