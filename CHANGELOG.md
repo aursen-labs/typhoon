@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added event logging: an `#[event]` attribute macro applied to an enum, where each variant is an event discriminated by its index (`u8`), with an `.emit()` method that writes the event to the transaction logs and includes each variant in the generated IDL.
+
 ### Changed
 
 ### Fixed

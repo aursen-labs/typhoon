@@ -8,6 +8,7 @@ Typhoon is organized into several crates, each providing specific functionality 
 - **`typhoon-accounts`**: Handles account-related abstractions and data structures.
 - **`typhoon-context`**: Provides the infrastructure for instruction contexts.
 - **`typhoon-errors`**: Defines the error handling system used throughout the framework.
+- **`typhoon-events`**: Emitting events to the transaction logs (the `Emit` trait behind `#[event]`).
 - **`typhoon-traits`**: Core traits used for cross-compatible implementations.
 
 ## Macro Crates

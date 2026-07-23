@@ -1,0 +1,15 @@
+[package]
+name = "typhoon-events"
+description = "Event emission to the transaction logs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[dependencies]
+pinocchio.workspace = true

@@ -69,6 +69,7 @@ jobs:
             "counter",
             "cpi",
             "escrow",
+            "events",
             "hello-world",
             "instruction-data",
             "misc",

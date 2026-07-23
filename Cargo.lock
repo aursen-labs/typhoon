@@ -1497,6 +1497,8 @@ dependencies = [
  "typhoon-cpi-generator-macro",
  "typhoon-errors",
  "typhoon-errors-macro",
+ "typhoon-event-macro",
+ "typhoon-events",
  "typhoon-program-id-macro",
  "typhoon-traits",
  "typhoon-utility",
@@ -1630,6 +1632,21 @@ dependencies = [
  "syn 2.0.119",
  "typhoon-errors",
  "typhoon-syn",
+]
+
+[[package]]
+name = "typhoon-event-macro"
+version = "0.3.0"
+dependencies = [
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "typhoon-events"
+version = "0.3.0"
+dependencies = [
+ "pinocchio",
 ]
 
 [[package]]

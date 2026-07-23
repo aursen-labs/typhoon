@@ -59,6 +59,8 @@ typhoon-traits = { version = "0.3.0", path = "crates/traits" }
 typhoon-cpi-generator-macro = { version = "0.3.0", path = "crates/cpi-generator-macro" }
 typhoon-discriminator = { version = "0.3.0", path = "crates/discriminator" }
 typhoon-errors = { version = "0.3.0", path = "crates/errors" }
+typhoon-events = { version = "0.3.0", path = "crates/events" }
+typhoon-event-macro = { version = "0.3.0", path = "crates/event-macro" }
 typhoon-errors-macro = { version = "0.3.0", path = "crates/errors-macro" }
 typhoon-program-id-macro = { version = "0.3.0", path = "crates/program-id-macro" }
 typhoon-syn = { version = "0.3.0", path = "crates/syn" }

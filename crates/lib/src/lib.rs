@@ -3,14 +3,14 @@
 pub mod macros {
     pub use {
         typhoon_account_macro::*, typhoon_context_macro::*, typhoon_cpi_generator_macro::*,
-        typhoon_errors_macro::*, typhoon_program_id_macro::*,
+        typhoon_errors_macro::*, typhoon_event_macro::*, typhoon_program_id_macro::*,
     };
 }
 
 pub mod lib {
     pub use {
-        typhoon_accounts::*, typhoon_context::*, typhoon_errors::*, typhoon_traits::*,
-        typhoon_utility_traits::*,
+        typhoon_accounts::*, typhoon_context::*, typhoon_errors::*, typhoon_events::*,
+        typhoon_traits::*, typhoon_utility_traits::*,
     };
 }
 
