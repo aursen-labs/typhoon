@@ -116,6 +116,15 @@ fn gen_address_guard(lhs: TokenStream, rhs: TokenStream, err: TokenStream) -> To
     }
 }
 
+/// Generates a guard that returns an error when an optional address comparison fails.
+fn gen_optional_address_guard(lhs: TokenStream, rhs: TokenStream, err: TokenStream) -> TokenStream {
+    quote! {
+        if hint::unlikely(#lhs.is_none_or(|a| !address::address_eq(a, #rhs))) {
+            return Err(#err);
+        }
+    }
+}
+
 impl AccountGenerator<'_> {
     pub fn needs_programs(&self) -> Vec<String> {
         let mut programs = Vec::with_capacity(3);
@@ -440,7 +449,38 @@ impl AccountGenerator<'_> {
                 }
                 token
             }
-            AccountType::Mint { .. } => TokenStream::new(),
+            AccountType::Mint {
+                ref decimals,
+                ref authority,
+                ref freeze_authority,
+            } => {
+                let mut token = TokenStream::new();
+                if let Some(authority) = authority {
+                    token.extend(gen_optional_address_guard(
+                        quote!(#state.mint_authority()),
+                        quote!(#authority.address()),
+                        quote!(ErrorCode::TokenConstraintViolated.into()),
+                    ));
+                }
+
+                if let Some(decimals) = decimals {
+                    token.extend(quote! {
+                        if hint::unlikely(#state.decimals() != #decimals) {
+                            return Err(ErrorCode::TokenConstraintViolated.into());
+                        }
+                    });
+                }
+
+                if let Some(freeze_authority) = freeze_authority.as_ref() {
+                    token.extend(gen_optional_address_guard(
+                        quote!(#state.freeze_authority()),
+                        quote!(#freeze_authority.address()),
+                        quote!(ErrorCode::TokenConstraintViolated.into()),
+                    ));
+                }
+
+                token
+            }
             AccountType::Other { ref targets, .. } => {
                 let basic_error: Expr = parse_quote!(ErrorCode::HasOneConstraint);
                 targets
