@@ -1,11 +1,11 @@
 error: One constraint requires including the `Program<TokenProgram>` account.
-  --> tests/constraints/missing_token_pogram.fail.rs:22:1
+  --> tests/constraints/missing_token_pogram.fail.rs:19:1
    |
-22 | / pub struct InitContext {
-23 | |     pub payer: Mut<Signer>,
-24 | |     #[constraint(
-25 | |         init,
+19 | / pub struct InitContext {
+20 | |     pub payer: Mut<Signer>,
+21 | |     #[constraint(
+22 | |         init,
 ...  |
-31 | |     pub system_program: Program<System>,
-32 | | }
+28 | |     pub system_program: Program<System>,
+29 | | }
    | |_^

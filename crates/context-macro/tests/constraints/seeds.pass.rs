@@ -1,8 +1,7 @@
 use pinocchio::{
-    address::{self, address_eq, declare_id, Address},
+    address::Address,
     cpi::Signer as CpiSigner,
     error::ProgramError,
-    hint,
     instruction::seeds,
     sysvars::{rent::Rent, Sysvar},
     AccountView,

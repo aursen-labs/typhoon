@@ -1,9 +1,6 @@
 use {
     bytemuck::{AnyBitPattern, NoUninit},
-    pinocchio::{
-        address::{address_eq, declare_id},
-        Address,
-    },
+    pinocchio::Address,
     typhoon_account_macro::*,
     typhoon_context_macro::*,
     typhoon_program_id_macro::program_id,

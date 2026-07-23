@@ -110,7 +110,7 @@ fn seed_temp_bindings(
 /// Generates a guard that returns an error when an address comparison fails.
 fn gen_address_guard(lhs: TokenStream, rhs: TokenStream, err: TokenStream) -> TokenStream {
     quote! {
-        if hint::unlikely(!address::address_eq(#lhs, #rhs)) {
+        if pinocchio::hint::unlikely(!pinocchio::address::address_eq(#lhs, #rhs)) {
             return Err(#err);
         }
     }
@@ -465,7 +465,7 @@ impl AccountGenerator<'_> {
                 let basic_error: Expr = parse_quote!(ErrorCode::AssertConstraint);
                 let error = error.as_ref().unwrap_or(&basic_error);
                 quote! {
-                    if hint::unlikely(!(#assert)) {
+                    if pinocchio::hint::unlikely(!(#assert)) {
                         return Err(#error.into());
                     }
                 }
