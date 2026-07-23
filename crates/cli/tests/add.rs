@@ -122,6 +122,45 @@ fn add_handler() {
     );
 }
 
+#[test]
+fn add_handler_duplicate() {
+    let tmp_dir = TempDir::new().unwrap();
+    let program_name = "counter";
+    let handler_name = "new-handler";
+    let project_dir: std::path::PathBuf = new_workspace(
+        &tmp_dir,
+        "test-project",
+        Some(program_name.to_string()),
+        false,
+    )
+    .unwrap();
+
+    // First add succeeds.
+    run_handler(&project_dir, program_name, handler_name).unwrap();
+
+    // Adding the same handler again must fail (the handler file already exists)...
+    assert!(
+        run_handler(&project_dir, program_name, handler_name).is_err(),
+        "Adding a duplicate handler should fail"
+    );
+
+    // ...and must not leave a duplicate router entry behind.
+    let lib_path = project_dir
+        .join("programs")
+        .join(program_name.to_snake_case())
+        .join("src")
+        .join("lib.rs");
+    let lib_content = fs::read_to_string(&lib_path).unwrap();
+    let occurrences = lib_content
+        .matches(&format!("=> {},", handler_name.to_snake_case()))
+        .count();
+    assert_eq!(
+        occurrences, 1,
+        "Router should contain exactly one entry for '{}', found {}:\n{}",
+        handler_name, occurrences, lib_content
+    );
+}
+
 fn run_program(project_dir: &Path, program_name: &str) -> anyhow::Result<()> {
     let args = vec![
         "typhoon",

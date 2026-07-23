@@ -72,19 +72,24 @@ pub fn handler(path: Option<PathBuf>, program: &str, instruction: &str) -> anyho
         anyhow::bail!("No Typhoon workspace found at '{}'", project_dir.display());
     }
 
-    let handler_path = project_dir
-        .join("handlers")
-        .join(instruction.to_snake_case());
-    if handler_path.exists() {
-        anyhow::bail!(
-            "Handler '{}' already exists in the Typhoon workspace",
-            instruction
-        );
-    }
-
     // Validate instruction name
     if !is_valid_name(instruction) {
         anyhow::bail!("Instruction name '{}' is not a valid name", instruction);
+    }
+
+    // Handlers live at `programs/<program>/src/handlers/<instruction>.rs`.
+    let handler_path = project_dir
+        .join("programs")
+        .join(program.to_snake_case())
+        .join("src")
+        .join("handlers")
+        .join(format!("{}.rs", instruction.to_snake_case()));
+    if handler_path.exists() {
+        anyhow::bail!(
+            "Handler '{}' already exists in program '{}'",
+            instruction,
+            program
+        );
     }
 
     // Generate handler files
@@ -132,9 +137,18 @@ pub fn handler(path: Option<PathBuf>, program: &str, instruction: &str) -> anyho
             .position(|line| line.trim_start().starts_with("};"))
             .ok_or_else(|| anyhow::anyhow!("Router end not found in lib.rs"))?;
     let router_instr_regex = regex::Regex::new(r"^\s*(\d+)\s*=>\s*([\w_]+),").unwrap();
+    let new_target = instruction.to_snake_case();
     let mut last_index = -1;
     for line in &lib_lines[router_line + 1..router_end_line] {
         if let Some(cap) = router_instr_regex.captures(line) {
+            // Guard against a second, duplicate router entry for the same handler.
+            if &cap[2] == new_target.as_str() {
+                anyhow::bail!(
+                    "Instruction '{}' is already registered in the router of program '{}'",
+                    instruction,
+                    program
+                );
+            }
             if let Ok(idx) = cap[1].parse::<i32>() {
                 if idx > last_index {
                     last_index = idx;
