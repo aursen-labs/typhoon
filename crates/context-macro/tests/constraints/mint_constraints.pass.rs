@@ -1,6 +1,6 @@
 use {
     pinocchio::{
-        address::{self, address_eq, declare_id, Address},
+        address::{address_eq, declare_id, Address},
         error::ProgramError,
         hint, AccountView,
     },

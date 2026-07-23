@@ -119,7 +119,7 @@ fn gen_address_guard(lhs: TokenStream, rhs: TokenStream, err: TokenStream) -> To
 /// Generates a guard that returns an error when an optional address comparison fails.
 fn gen_optional_address_guard(lhs: TokenStream, rhs: TokenStream, err: TokenStream) -> TokenStream {
     quote! {
-        if hint::unlikely(#lhs.is_none_or(|a| !address::address_eq(a, #rhs))) {
+        if pinocchio::hint::unlikely(#lhs.is_none_or(|a| !pinocchio::address::address_eq(a, #rhs))) {
             return Err(#err);
         }
     }
