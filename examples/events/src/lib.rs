@@ -1,14 +1,9 @@
 #![no_std]
 
-mod error;
-
 use {
     bytemuck::{AnyBitPattern, NoUninit},
     typhoon::prelude::*,
 };
-
-#[cfg(feature = "logging")]
-pub type LogError = TestErrors;
 
 program_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
@@ -31,31 +26,11 @@ pub struct CounterMut {
     pub counter: Mut<Account<Counter>>,
 }
 
-#[context]
-pub struct Destination {
-    pub destination: Mut<SystemAccount>,
-}
-
-#[context]
-pub struct UnusedContext {
-    pub random: SystemAccount,
-}
-
-// TODO add seeds and seeded
-
-#[context]
-#[args(value: u64)]
-pub struct RandomContext {
-    pub account: SystemAccount,
-}
-
 entrypoint!(ROUTER);
 
 pub const ROUTER: EntryFn = basic_router! {
     0 => initialize,
     1 => increment,
-    2 => close,
-    3 => random_instruction,
 };
 
 pub fn initialize(_: Init) -> ProgramResult {
@@ -69,23 +44,11 @@ pub fn increment(mut ctx: CounterMut) -> ProgramResult {
         data.count
     };
 
+    // Emit an event to the transaction logs. The payload is the variant's
+    // discriminator (its index, as a `u8`) followed by its packed fields, and
+    // shows up as a `Program data:` log line that clients can decode against
+    // the IDL.
     CounterEvent::Incremented { count }.emit();
-
-    Ok(())
-}
-
-pub fn random_instruction(
-    Arg(amount): Arg<AnotherStruct>,
-    context: RandomContext,
-) -> ProgramResult {
-    Ok(())
-}
-
-pub fn close(
-    CounterMut { mut counter }: CounterMut,
-    Destination { mut destination }: Destination,
-) -> ProgramResult {
-    counter.close(&mut destination)?;
 
     Ok(())
 }
@@ -94,20 +57,9 @@ pub fn close(
 #[repr(C)]
 pub struct Counter {
     pub count: u64,
-    pub another: AnotherStruct,
-}
-
-#[derive(NoUninit, AnyBitPattern, Copy, Clone)]
-#[repr(C)]
-pub struct AnotherStruct {
-    pub amount: u64,
 }
 
 #[event]
 pub enum CounterEvent {
     Incremented { count: u64 },
-}
-
-pub struct ExcludedType {
-    pub more_data: u32,
 }

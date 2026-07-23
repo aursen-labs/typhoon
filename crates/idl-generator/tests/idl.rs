@@ -300,7 +300,41 @@ fn idl_test() {
 
     ],
     "events": [
-
+      {
+        "kind": "eventNode",
+        "name": "incremented",
+        "data": {
+          "kind": "structTypeNode",
+          "fields": [
+            {
+              "kind": "structFieldTypeNode",
+              "name": "count",
+              "type": {
+                "kind": "numberTypeNode",
+                "format": "u64",
+                "endian": "le"
+              }
+            }
+          ]
+        },
+        "discriminators": [
+          {
+            "kind": "constantDiscriminatorNode",
+            "offset": 0,
+            "constant": {
+              "kind": "constantValueNode",
+              "type": {
+                "kind": "bytesTypeNode"
+              },
+              "value": {
+                "kind": "bytesValueNode",
+                "data": "AA==",
+                "encoding": "base64"
+              }
+            }
+          }
+        ]
+      }
     ],
     "errors": [
       {

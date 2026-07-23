@@ -26,6 +26,7 @@ pub fn generate(crates: &[&Path]) -> CodamaResult<String> {
             .defined_types
             .append(&mut program.defined_types);
         node.program.accounts.append(&mut program.accounts);
+        node.program.events.append(&mut program.events);
     }
 
     node.to_json()
